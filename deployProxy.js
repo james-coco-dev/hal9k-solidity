@@ -1,5 +1,7 @@
 const { ethers, Wallet, ContractFactory, Contract } = require("ethers");
+
 const fs = require("fs");
+
 require("dotenv").config();
 
 //----------artifact path-------------
@@ -16,7 +18,9 @@ const unpackArtifact = (artifactPath) => {
   const constructorArgs = contractABI.filter((itm) => {
     return itm.type == "constructor";
   });
+
   let constructorStr;
+
   if (constructorArgs.length < 1) {
     constructorStr = "    -- No constructor arguments -- ";
   } else {
@@ -38,8 +42,8 @@ const unpackArtifact = (artifactPath) => {
   };
 };
 
-let provider;
-let wethAddress;
+let provider, wethAddress;
+
 if (process.env.NETWORK == "mainnet") {
   provider = ethers.getDefaultProvider("homestead");
   wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
@@ -47,6 +51,7 @@ if (process.env.NETWORK == "mainnet") {
   provider = ethers.getDefaultProvider("kovan");
   wethAddress = "0xd0a1e359811322d97991e03f863a0c30c2cf029c";
 }
+
 let wallet, connectedWallet;
 wallet = Wallet.fromMnemonic(process.env.MNEMONIC);
 connectedWallet = wallet.connect(provider);
@@ -130,22 +135,24 @@ const initFeeApprover = async() => {
     console.log("initFeeApprover ===>", err);
   }
 };
-const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
-const hal9kTokenAddress = "0x3536E583f7fA9395219A81580588b57dD6D0B13b";
-const deployedProxyAdminAddress = "0x21BC39dD06AE5A7f93Dc43CDB69E71881BFbFb0B";
 
-const deployedHal9kVaultAddress = "0x2CFda202f6043400284C2E07d400C48d94f82774";
-const deployedHal9kVaultProxy = "0xA182e0275d4a1c9A5a593D0A95BB96E22118102e";
+const devAddr = "0xAD3e6614754f143a6e602E81086F1dB7afC81569";
+const hal9kTokenAddress = "0xd2849501952F12C3D2333c327552AAf81473487C";
+const deployedProxyAdminAddress = "0x9dB32812052AEde0dCA8FAcD9AA0ffE0B9c0F95b"; // No change after deploy
+
+const deployedHal9kVaultAddress = "0xA33f56979221d8451CB75F02CDE03Fc9fA665FA4";
+const deployedHal9kVaultProxy = "0xbc6c4fEB79dD1Abac70111e3857709d17b9124E5"; // No change after deploy
 
 const hal9kVaultInited = true;
 
-const deployedFeeApproverAddress = "0xD1addDf943BdA90Af421044A3F3D0576D0E6b09c";
-const deployedFeeApproverProxy = "0x11E76bA18CAea05c7e7E8C764FA4629CB174b0Fb";
+const deployedFeeApproverAddress = "0xe64Bbeb1886731CDccCB7D5B9F0eFE38106a4c8A";
+const deployedFeeApproverProxy = "0x58EcF2Aabe765ef51E38FA902F4176885937f2F6"; // No change after deploy
 
-const feeApproverInited = false;
+const feeApproverInited = true;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
+
 if (!deployedProxyAdminAddress) {
   deploy(proxyAdminArtifact);
   return;
@@ -153,6 +160,7 @@ if (!deployedProxyAdminAddress) {
 
 // Step 2.
 // Deploy the Hal9kVault logic
+
 if (!deployedHal9kVaultAddress) {
   deploy(hal9kVaultArtifact);
   return;
@@ -160,6 +168,7 @@ if (!deployedHal9kVaultAddress) {
 
 // Step 3.
 // Deploy the proxy for Hal9kVault logic
+
 if (!deployedHal9kVaultProxy) {
   deploy(
     adminUpgradeabilityProxyArtifact,
@@ -171,23 +180,26 @@ if (!deployedHal9kVaultProxy) {
   );
   return;
 }
+
 // Step 4.
 // Call initializer on the proxied Hal9kVault
+
 if (!hal9kVaultInited) {
   initHal9kVault();
   return;
 }
-// Step 5.
 
+// Step 5.
 // Deploy FeeApprover
+
 if (!deployedFeeApproverAddress) {
   deploy(feeApproverArtifact);
   return;
 }
 
 // Step 6.
-
 //Deploy FeeApproverProxy
+
 if (!deployedFeeApproverProxy) {
   deploy(
     adminUpgradeabilityProxyArtifact,
@@ -201,7 +213,6 @@ if (!deployedFeeApproverProxy) {
 }
 
 //Step 7.
-
 //Initalize the feeApprover
 
 if (!feeApproverInited) {
