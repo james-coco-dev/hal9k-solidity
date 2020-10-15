@@ -1,0 +1,14 @@
+/node_modules
+oz/node_modules
+oz/build
+/build
+/cache
+/artifacts
+.DS_Store
+/artifacts
+secrets
+contracts.orig
+Proxy/node_modules
+/prodartifacts
+.openzeppelin/.session
+.env
