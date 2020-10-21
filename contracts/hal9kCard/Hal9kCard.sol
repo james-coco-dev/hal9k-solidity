@@ -1082,14 +1082,14 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 
 /**
  * @title MemeLtd
- * MemeLtd - Collect limited edition NFTs from Hal9kCard
+ * MemeLtd - Collect limited edition NFTs from HAL9KCard
  */
-contract Hal9kCard is ERC1155Tradable {
-	constructor(address _proxyRegistryAddress) public ERC1155Tradable("Hal9kCard", "HAL9K", _proxyRegistryAddress) {
-		_setBaseMetadataURI("https://api.dontbuymeme.com/memes/");
+contract HAL9KCard is ERC1155Tradable {
+	constructor(address _proxyRegistryAddress) public ERC1155Tradable("HAL9000", "HAL9K", _proxyRegistryAddress) {
+		_setBaseMetadataURI("https://api.hal9k.com/hal9ks");
 	}
 
 	function contractURI() public view returns (string memory) {
-		return "https://api.dontbuymeme.com/contract/memes-erc1155";
+		return "https://api.hal9k.com/contract/hal9ks-erc1155";
 	}
 }
