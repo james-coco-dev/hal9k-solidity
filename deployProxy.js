@@ -8,7 +8,8 @@ require("dotenv").config();
 const proxyAdminArtifact = "./prodartifacts/ProxyAdmin.json";
 const hal9kVaultArtifact = "./prodartifacts/Hal9kVault.json";
 const hal9kArtifact = "./prodartifacts/HAL9K.json";
-const adminUpgradeabilityProxyArtifact = "./prodartifacts/AdminUpgradeabilityProxy.json";
+const adminUpgradeabilityProxyArtifact =
+  "./prodartifacts/AdminUpgradeabilityProxy.json";
 const feeApproverArtifact = "./prodartifacts/FeeApprover.json";
 
 const unpackArtifact = (artifactPath) => {
@@ -56,11 +57,7 @@ let wallet, connectedWallet;
 wallet = Wallet.fromMnemonic(process.env.MNEMONIC);
 connectedWallet = wallet.connect(provider);
 
-const deployContract = async (
-  contractABI,
-  contractBytecode,
-  args = []
-) => {
+const deployContract = async (contractABI, contractBytecode, args = []) => {
   try {
     const factory = new ContractFactory(
       contractABI,
@@ -68,7 +65,6 @@ const deployContract = async (
       connectedWallet
     );
     return await factory.deploy(...args);
-    
   } catch (error) {
     console.log("deployContract====>", error);
   }
@@ -77,8 +73,10 @@ const deployContract = async (
 const deploy = async (artifactPath, args) => {
   try {
     let tokenUnpacked = unpackArtifact(artifactPath);
-    console.log(`${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`);
-  
+    console.log(
+      `${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`
+    );
+
     const token = await deployContract(
       tokenUnpacked.abi,
       tokenUnpacked.bytecode,
@@ -88,8 +86,10 @@ const deploy = async (artifactPath, args) => {
     await connectedWallet.provider.waitForTransaction(
       token.deployTransaction.hash
     );
-    console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
-  } catch(err) {
+    console.log(
+      `✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`
+    );
+  } catch (err) {
     console.log("deploy ======>", err);
   }
 };
@@ -97,58 +97,89 @@ const deploy = async (artifactPath, args) => {
 const initHal9kVault = async () => {
   try {
     let tokenUnpacked = unpackArtifact(hal9kVaultArtifact);
-    let hal9kVault = new Contract(deployedHal9kVaultProxy, tokenUnpacked.abi, connectedWallet);
-    let initTxn = await hal9kVault.initialize(hal9kTokenAddress, devAddr, devAddr);
+    let hal9kVault = new Contract(
+      deployedHal9kVaultProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    let initTxn = await hal9kVault.initialize(
+      hal9kTokenAddress,
+      devAddr,
+      devAddr
+    );
     console.log(`⌛ Initialize Hal9kVault...`);
     await connectedWallet.provider.waitForTransaction(initTxn.hash);
-    console.log(`✅ Initialized Hal9kVault on token at ${hal9kVault.address}`)
-    
+    console.log(`✅ Initialized Hal9kVault on token at ${hal9kVault.address}`);
   } catch (error) {
     console.log("initHal9kVault ====>", error);
   }
 };
 
-const initFeeApprover = async() => {
+const initFeeApprover = async () => {
   try {
     let tokenUnpacked = unpackArtifact(feeApproverArtifact);
-    let feeApprover = new Contract(deployedFeeApproverProxy, tokenUnpacked.abi, connectedWallet);
-    let initTxn = await feeApprover.initialize(hal9kTokenAddress, wethAddress, process.env.UNISWAPFACTORY);
+    let feeApprover = new Contract(
+      deployedFeeApproverProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    let initTxn = await feeApprover.initialize(
+      hal9kTokenAddress,
+      wethAddress,
+      process.env.UNISWAPFACTORY
+    );
     console.log(`⌛ Initialize FeeApprover...`);
     await connectedWallet.provider.waitForTransaction(initTxn.hash);
-    console.log(`✅ Initialized FeeApprover on token at ${feeApprover.address}`);
-    
-    let hal9kTokenUnpacked = unpackArtifact(hal9kArtifact);
-    let token = new Contract(hal9kTokenAddress, hal9kTokenUnpacked.abi, connectedWallet);
-    let setTransferCheckerResult = await token.setShouldTransferChecker(feeApprover.address);
-    console.log(`⌛ setShouldTransferChecker...`)
-    await connectedWallet.provider.waitForTransaction(setTransferCheckerResult.hash)
-    console.log(`✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address}`);
-    
-    let setFeeDistributorResult = await token.setFeeDistributor(wallet.address);
-    console.log(`⌛ setFeeDistributor...`)
-    await connectedWallet.provider.waitForTransaction(setFeeDistributorResult.hash)
-    console.log(`✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`)
-  
-    console.log("All done!")
+    console.log(
+      `✅ Initialized FeeApprover on token at ${feeApprover.address}`
+    );
 
-  } catch(err) {
+    let hal9kTokenUnpacked = unpackArtifact(hal9kArtifact);
+    let token = new Contract(
+      hal9kTokenAddress,
+      hal9kTokenUnpacked.abi,
+      connectedWallet
+    );
+    let setTransferCheckerResult = await token.setShouldTransferChecker(
+      feeApprover.address
+    );
+    console.log(`⌛ setShouldTransferChecker...`);
+    await connectedWallet.provider.waitForTransaction(
+      setTransferCheckerResult.hash
+    );
+    console.log(
+      `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`
+    );
+
+    let setFeeDistributorResult = await token.setFeeDistributor(wallet.address);
+    console.log(`⌛ setFeeDistributor...`);
+    await connectedWallet.provider.waitForTransaction(
+      setFeeDistributorResult.hash
+    );
+    console.log(
+      `✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`
+    );
+
+    console.log("All done!");
+  } catch (err) {
     console.log("initFeeApprover ===>", err);
   }
 };
+const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
-const devAddr = "0xAD3e6614754f143a6e602E81086F1dB7afC81569";
-const hal9kTokenAddress = "0xd2849501952F12C3D2333c327552AAf81473487C";
-const deployedProxyAdminAddress = "0x9dB32812052AEde0dCA8FAcD9AA0ffE0B9c0F95b"; // No change after deploy
+//kovan testnet addresses
+const hal9kTokenAddress = "0x3A9fFd547d7aE5189A13414A51e789Ccae6b8266";
+const deployedProxyAdminAddress = "0x6CDDb18496A27905D00501cD5292981c8c04715D"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0xA33f56979221d8451CB75F02CDE03Fc9fA665FA4";
-const deployedHal9kVaultProxy = "0xbc6c4fEB79dD1Abac70111e3857709d17b9124E5"; // No change after deploy
+const deployedHal9kVaultAddress = "0xF442e39a9E5379106a83C00E97f6E7AA98D0070c";
+const deployedHal9kVaultProxy = "0x1846F064C668Fd748FA552da4060434f9ae90521"; // No change after deploy
 
 const hal9kVaultInited = true;
 
-const deployedFeeApproverAddress = "0xe64Bbeb1886731CDccCB7D5B9F0eFE38106a4c8A";
-const deployedFeeApproverProxy = "0x58EcF2Aabe765ef51E38FA902F4176885937f2F6"; // No change after deploy
+const deployedFeeApproverAddress = "0x27eb56DED3584827B1bA428BC73F9185E2E16855";
+const deployedFeeApproverProxy = "0x136b01DD3B5A0ffb42195e769F532540abDEABD7"; // No change after deploy
 
-const feeApproverInited = true;
+const feeApproverInited = false;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
@@ -170,14 +201,11 @@ if (!deployedHal9kVaultAddress) {
 // Deploy the proxy for Hal9kVault logic
 
 if (!deployedHal9kVaultProxy) {
-  deploy(
-    adminUpgradeabilityProxyArtifact,
-    [
-      deployedHal9kVaultAddress /*logic*/,
-      deployedProxyAdminAddress /*admin*/,
-      [],
-    ]
-  );
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedHal9kVaultAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
   return;
 }
 
@@ -201,14 +229,11 @@ if (!deployedFeeApproverAddress) {
 //Deploy FeeApproverProxy
 
 if (!deployedFeeApproverProxy) {
-  deploy(
-    adminUpgradeabilityProxyArtifact,
-    [
-      deployedFeeApproverAddress /*logic*/,
-      deployedProxyAdminAddress /*admin*/,
-      []
-    ]
-  );
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedFeeApproverAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
   return;
 }
 
