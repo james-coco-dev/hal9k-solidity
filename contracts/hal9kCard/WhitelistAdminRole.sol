@@ -1,6 +1,7 @@
 pragma solidity 0.6.12;
 
 import './Context.sol';
+import './Roles.sol';
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.

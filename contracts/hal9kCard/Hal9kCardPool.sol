@@ -4,9 +4,9 @@
 
 pragma solidity 0.6.12;
 
-import './Ownable.sol';
-import './IERC20.sol';
-import './SafeMath.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol"; // for WETH
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import './ERC1155Tradable.sol';
 
 contract HAL9KTokenWrapper {

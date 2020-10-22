@@ -1,5 +1,7 @@
 pragma solidity 0.6.12;
 
+import './Address.sol';
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 /**
  * @dev Implementation of Multi-Token Standard contract
  */

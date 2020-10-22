@@ -4,9 +4,9 @@ import './Strings.sol';
 import './ERC1155.sol';
 import './ERC1155MintBurn.sol';
 import './ERC1155Metadata.sol';
-import './Ownable.sol';
 import './MinterRole.sol';
 import './WhitelistAdminRole';
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract OwnableDelegateProxy {}
 
@@ -25,6 +25,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 
 	address proxyRegistryAddress;
 	uint256 private _currentTokenID = 0;
+	
 	mapping(uint256 => address) public creators;
 	mapping(uint256 => uint256) public tokenSupply;
 	mapping(uint256 => uint256) public tokenMaxSupply;
@@ -100,6 +101,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
 		uint256 _id = _getNextTokenID();
 		_incrementTokenTypeId();
+		
 		creators[_id] = msg.sender;
 
 		if (bytes(_uri).length > 0) {
