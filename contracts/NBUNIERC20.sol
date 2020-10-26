@@ -71,8 +71,8 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
     }
 
     function initialSetup(address router, address factory) internal {
-        _name = "HAL9000";
-        _symbol = "HAL9K";
+        _name = "HAL9K";
+        _symbol = "HAL9000";
         _decimals = 18;
         _mint(address(this), initialSupply);
         contractStartTimestamp = block.timestamp;

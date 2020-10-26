@@ -1,11 +1,11 @@
 pragma solidity 0.6.12;
 
-import './Strings.sol';
-import './ERC1155.sol';
-import './ERC1155MintBurn.sol';
-import './ERC1155Metadata.sol';
-import './MinterRole.sol';
-import './WhitelistAdminRole';
+import "./Strings.sol";
+import "./ERC1155.sol";
+import "./ERC1155MintBurn.sol";
+import "./ERC1155Metadata.sol";
+import "./MinterRole.sol";
+import "./WhitelistAdminRole";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract OwnableDelegateProxy {}

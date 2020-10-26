@@ -7,7 +7,7 @@ import './ERC1155Tradable.sol';
  * MemeLtd - Collect limited edition NFTs from HAL9KCard
  */
 contract HAL9KCard is ERC1155Tradable {
-	constructor(address _proxyRegistryAddress) public ERC1155Tradable("HAL9000", "HAL9K", _proxyRegistryAddress) {
+	constructor(address _proxyRegistryAddress) public ERC1155Tradable("9KNFT", "9K", _proxyRegistryAddress) {
 		_setBaseMetadataURI("https://api.hal9k.com/hal9ks");
 	}
 
