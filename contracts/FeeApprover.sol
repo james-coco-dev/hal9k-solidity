@@ -10,6 +10,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
 contract FeeApprover is OwnableUpgradeSafe {
     using SafeMath for uint256;
+    
+    // In this contract, e do calculate fee and the real amount to be sent to the recepient
 
     function initialize(
         address _Hal9kAddress,
