@@ -6,6 +6,7 @@ import "./ERC1155MintBurn.sol";
 import "./ERC1155Metadata.sol";
 import "./MinterRole.sol";
 import "./WhitelistAdminRole";
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract OwnableDelegateProxy {}
@@ -51,6 +52,10 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 
 	function removeMinter(address account) public onlyOwner {
 		_removeMinter(account);
+	}
+
+	function addMinter(address account) public onlyOwner {
+		_addMinter(account);
 	}
 
 	function uri(uint256 _id) public view returns (string memory) {
