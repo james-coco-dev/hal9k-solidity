@@ -27,83 +27,79 @@ contract HAL9KTokenWrapper {
 	function balanceOf(address account) public view returns (uint256) {
 		return _balances[account];
 	}
-
-	function stake(uint256 amount) public {
-		_totalSupply = _totalSupply.add(amount);
-		_balances[msg.sender] = _balances[msg.sender].add(amount);
-		HAL9K.transferFrom(msg.sender, address(this), amount);
-	}
-
-	function withdraw(uint256 amount) public {
-		_totalSupply = _totalSupply.sub(amount);
-		_balances[msg.sender] = _balances[msg.sender].sub(amount);
-		HAL9K.transfer(msg.sender, amount);
-	}
 }
 
 contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 	ERC1155Tradable public hal9kCards;
 
-	mapping(address => uint256) public lastUpdateTime;
-	mapping(address => uint256) public points;
-	mapping(uint256 => uint256) public cards;
+    struct UserInfo {
+        uint256 lastStageChangeTime;
+		uint256 claimedLpAmount;
+		uint256 lpClaimedTime;
+		uint256 stage;
+        bool claimed;
+    }
 
-	event CardAdded(uint256 card, uint256 points);
-	event Staked(address indexed user, uint256 amount);
-	event Withdrawn(address indexed user, uint256 amount);
-	event Redeemed(address indexed user, uint256 amount);
+    mapping(address => UserInfo) private lpUsers;
+	address[] public lpUserAddress;
 
-	modifier updateReward(address account) {
-		if (account != address(0)) {
-			points[account] = earned(account);
-			lastUpdateTime[account] = block.timestamp;
-		}
-		_;
-	}
+	// Events
+	event stageUpdated(address addr, uint256 stage);
 
+	// functions
 	constructor(ERC1155Tradable _hal9kCardsAddress, IERC20 _HAL9KAddress) public HAL9KTokenWrapper(_HAL9KAddress) {
 		hal9kCards = _hal9kCardsAddress;
 	}
 
-	function addCard(uint256 cardId, uint256 amount) public onlyOwner {
-		cards[cardId] = amount;
-		emit CardAdded(cardId, amount);
+	function startReceivingHal9K() external public {
+		lpUsers[msg.sender].lpClaimedTime = block.timestamp;
+		lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+		lpUsers[msg.sender].claimed = true;
+		lpUsers[msg.sender].stage = 0;
 	}
 
-	function earned(address account) public view returns (uint256) {
-		uint256 blockTime = block.timestamp;
-		return
-			points[account].add(
-				blockTime.sub(lastUpdateTime[account]).mul(1e18).div(86400).mul(balanceOf(account).div(1e8))
-			);
+    function getDaysPassedAfterLPClaim() public view returns (uint256) {
+        require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+		uint256 days = (block.timestamp - lpUsers[msg.sender].lpClaimedTime) / 60 / 60 / 24;
+		return days;
+    }
+
+	// backOrForth : back if true, forward if false
+	function oneStageBack(bool backOrForth) public { 
+		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+		uint256 days = (block.timestamp - lpUsers[msg.sender].lastStageChangeTime) / 60 / 60 / 24;
+
+		if (backOrForth == false) {	// If user moves to the next stage
+			if (lpUsers[msg.sender].stage == 0 && days >= 1) {
+				lpUsers[msg.sender].stage = 1;
+				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+			} 
+			if (lpUsers[msg.sender].stage > 2) {
+				lpUsers[msg.sender].stage += 1;
+				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+			}
+		} else {	// If user decides to go one stage back
+			if (lpUsers[msg.sender].stage > 3) {
+				lpUsers[msg.sender].stage = 3;
+				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+			} else if(lpUsers[msg.sender].stage == 1) {
+				lpUsers[msg.sender].stage = 1;
+				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+			} else {
+				lpUsers[msg.sender].stage -= 1;
+				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
+			}
+		}
+		
+        emit stageUpdated(msg.sender, lpUsers[userAddr].stage);
+	}
+	
+	// Give NFT to User
+	function addHal9kRewardForUser(uint256 cardId) public {
+		// Check if cards are available to be minted
+		require(hal9kCards._exists(cardId) != false, "Card not found");
+		require(hal9kCards.totalSupply(cardId) < hal9kCards.maxSupply(card), "Max cards minted");
+		hal9kCards.mint(msg.sender, cardId, 1, "");
 	}
 
-	// stake visibility is public as overriding HAL9KTokenWrapper's stake() function
-	function stake(uint256 amount) public updateReward(msg.sender) {
-		require(amount.add(balanceOf(msg.sender)) <= 500000000, "Cannot stake more than 5 HAL9K");
-
-		super.stake(amount);
-		emit Staked(msg.sender, amount);
-	}
-
-	function withdraw(uint256 amount) public updateReward(msg.sender) {
-		require(amount > 0, "Cannot withdraw 0");
-
-		super.withdraw(amount);
-		emit Withdrawn(msg.sender, amount);
-	}
-
-	function exit() external {
-		withdraw(balanceOf(msg.sender));
-	}
-
-	function redeem(uint256 card) public updateReward(msg.sender) {
-		require(cards[card] != 0, "Card not found");
-		require(points[msg.sender] >= cards[card], "Not enough points to redeem for card");
-		require(hal9kCards.totalSupply(card) < hal9kCards.maxSupply(card), "Max cards minted");
-
-		points[msg.sender] = points[msg.sender].sub(cards[card]);
-		hal9kCards.mint(msg.sender, card, 1, "");
-		emit Redeemed(msg.sender, cards[card]);
-	}
 }

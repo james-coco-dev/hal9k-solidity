@@ -61,10 +61,12 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
         public
         payable
     {
+        // Store deposited eth in hardHal9k
         hardHal9k[msg.sender] = hardHal9k[msg.sender].add(msg.value);
 
         uint256 buyAmount = msg.value.div(2);
         require(buyAmount > 0, "Insufficient ETH amount");
+
         _WETH.deposit{value: msg.value}();
 
         (uint256 reserveWeth, uint256 reserveHal9k) = getPairReserves();
@@ -80,6 +82,7 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
             address(_WETH),
             _hal9kToken
         );
+
         IUniswapV2Pair(_hal9kWETHPair).swap(
             _hal9kToken == token0 ? outHal9k : 0,
             _hal9kToken == token1 ? outHal9k : 0,
@@ -100,6 +103,7 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
     ) internal {
         (uint256 wethReserve, uint256 hal9kReserve) = getPairReserves();
 
+        // Get the amount of Hal9K token representing equivalent value to weth amount
         uint256 optimalHal9kAmount = UniswapV2Library.quote(
             wethAmount,
             wethReserve,
@@ -107,6 +111,7 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
         );
 
         uint256 optimalWETHAmount;
+
         if (optimalHal9kAmount > hal9kAmount) {
             optimalWETHAmount = UniswapV2Library.quote(
                 hal9kAmount,
@@ -174,6 +179,7 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
         (uint256 _reserve0, uint256 _reserve1) = token0 == _hal9kToken
             ? (reserveHal9k, reserveWeth)
             : (reserveWeth, reserveHal9k);
+            
         liquidity = Math.min(
             amount0.mul(_totalSupply) / _reserve0,
             amount1.mul(_totalSupply) / _reserve1

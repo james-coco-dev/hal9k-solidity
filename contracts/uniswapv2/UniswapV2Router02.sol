@@ -9,8 +9,6 @@ import './interfaces/IWETH.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/lib/contracts/libraries/TransferHelper.sol';
 
-
-
 contract UniswapV2Router02 is IUniswapV2Router02 {
     using SafeMathUniswap for uint;
 
