@@ -46,18 +46,15 @@ contract('Hal9kToken', ([alice, john, minter, dev, burner, clean, clean2, clean3
         // await this.factory.createPair(this.weth.address, this.hal9k.address);
 
     })
-    beforeEach(async () => {
 
+    beforeEach(async () => {
         this.hal9kvault = await CoreVault.new({ from: alice });
         await this.hal9kvault.initialize(this.hal9k.address, dev, clean);
-
 
         await this.weth.transfer(minter, '10000000000000000000', { from: alice });
 
         await this.feeapprover.setCoreVaultAddress(this.hal9kvault.address, { from: alice });
         // Set pair in the uni reert contract
-
-
     });
 
     it('Token 0 has to be weth', async () => {

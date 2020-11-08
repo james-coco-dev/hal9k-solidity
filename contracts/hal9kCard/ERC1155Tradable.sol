@@ -139,6 +139,23 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	}
 
 	/**
+	 * @dev Burns some amount of tokens to an address
+	 * @param _from          Address of the future owner of the token
+	 * @param _id          Token ID to mint
+	 * @param _quantity    Amount of tokens to mint
+	 */
+	function burn(
+		address _from,
+		uint256 _id,
+		uint256 _quantity
+	) public onlyMinter {
+		uint256 tokenId = _id;
+		require(tokenSupply[tokenId] > 0, "No token exists");
+		_burn(_from, _id, _quantity);
+		tokenSupply[_id] = tokenSupply[_id].sub(_quantity);
+	}
+
+	/**
 	 * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-free listings.
 	 */
 	function isApprovedForAll(address _owner, address _operator) public view returns (bool isOperator) {

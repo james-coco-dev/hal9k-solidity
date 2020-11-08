@@ -12,5 +12,4 @@ contract FeeGenerator {
             IERC20(tokenAddress).transfer(address(this), IERC20(tokenAddress).balanceOf(address(this)));
         }
     }
-
 }

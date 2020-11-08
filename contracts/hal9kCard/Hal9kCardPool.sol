@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol"; // for WETH
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import './ERC1155Tradable.sol';
+import '../NBUNIERC20.sol';
+import '../IHal9kVault.sol';
 
 contract HAL9KTokenWrapper {
 	using SafeMath for uint256;
@@ -31,11 +33,12 @@ contract HAL9KTokenWrapper {
 
 contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 	ERC1155Tradable public hal9kCards;
+    IHal9kVault public hal9kVault;
 
     struct UserInfo {
         uint256 lastStageChangeTime;
-		uint256 claimedLpAmount;
-		uint256 lpClaimedTime;
+		uint256 stakedAmount;
+		uint256 startTime;
 		uint256 stage;
         bool claimed;
     }
@@ -45,22 +48,32 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 
 	// Events
 	event stageUpdated(address addr, uint256 stage);
+	event addressChanged(address newAddress, address oldAddress);
 
 	// functions
-	constructor(ERC1155Tradable _hal9kCardsAddress, IERC20 _HAL9KAddress) public HAL9KTokenWrapper(_HAL9KAddress) {
+	constructor(ERC1155Tradable _hal9kCardsAddress, IHal9kVault _hal9kVAultAddress) public HAL9KTokenWrapper(_HAL9KAddress) {
 		hal9kCards = _hal9kCardsAddress;
+		hal9kVault = IHal9kVault(_hal9kVAultAddress);
 	}
 
-	function startReceivingHal9K() external public {
-		lpUsers[msg.sender].lpClaimedTime = block.timestamp;
+	// Change the hal9k card address
+    function changeHal9kCardAddress(address _hal9kAddress) external onlyOwner {
+        address oldAddress = address(hal9kCards);
+        hal9kCards = IFeeApprover(_hal9kAddress);
+
+        emit addressChanged(_hal9kAddress, oldAddress);
+    }
+	
+	function startReceivingHal9K() public {
+		lpUsers[msg.sender].startTime = block.timestamp;
 		lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 		lpUsers[msg.sender].claimed = true;
 		lpUsers[msg.sender].stage = 0;
 	}
 
-    function getDaysPassedAfterLPClaim() public view returns (uint256) {
+    function getDaysPassedAfterStakingStart() public view returns (uint256) {
         require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
-		uint256 days = (block.timestamp - lpUsers[msg.sender].lpClaimedTime) / 60 / 60 / 24;
+		uint256 days = (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
 		return days;
     }
 
@@ -90,16 +103,33 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			}
 		}
-		
+
         emit stageUpdated(msg.sender, lpUsers[userAddr].stage);
 	}
 	
 	// Give NFT to User
-	function addHal9kRewardForUser(uint256 cardId) public {
+	function mintCardForUser(uint256 _pid, uint256 _stakedAmount, uint256 _cardId, uint256 _cardCount) public {
 		// Check if cards are available to be minted
-		require(hal9kCards._exists(cardId) != false, "Card not found");
-		require(hal9kCards.totalSupply(cardId) < hal9kCards.maxSupply(card), "Max cards minted");
-		hal9kCards.mint(msg.sender, cardId, 1, "");
+		require(_cardCount > 0, "Mint amount should be more than 1");
+		require(hal9kCards._exists(_cardId) != false, "Card not found");
+		require(hal9kCards.totalSupply(_cardId) < hal9kCards.maxSupply(card), "Max cards minted");
+		
+		// Validation
+		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
+		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
+
+		hal9kCards.mint(msg.sender, _cardId, 1, "");
 	}
 
+	// Burn NFT from user
+	function burnCardForUser(uint256 _pid, uint256 _stakedAmount, uint256 _cardId, uint256 _cardCount) public {
+		require(_cardCount > 0, "Burn amount should be more than 1");
+		require(hal9kCards._exists(_cardId) == true, "Card doesn't exist");
+		require(hal9kCards.totalSupply(_cardId) > 0, "No cards exist");
+
+		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
+		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
+
+		hal9kCards.burn(msg.sender, _cardId, 1);
+	}
 }

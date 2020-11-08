@@ -44,6 +44,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
+
 contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;

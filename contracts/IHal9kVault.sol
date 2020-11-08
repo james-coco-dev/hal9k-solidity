@@ -4,8 +4,13 @@ interface IHal9kVault {
     function addPendingRewards(uint256 _amount) external;
 
     function depositFor(
-        address depositFor,
+        address _depositFor,
         uint256 _pid,
         uint256 _amount
+    ) external;
+
+    function getUserInfo(
+        uint256 _pid,
+        address _userAddress
     ) external;
 }

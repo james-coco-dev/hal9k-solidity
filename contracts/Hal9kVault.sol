@@ -42,24 +42,28 @@ contract Hal9kVault is OwnableUpgradeSafe {
 
     // The HAL9k TOKEN!
     INBUNIERC20 public hal9k;
+
     // Dev address.
     address public devaddr;
 
     // Info of each pool.
     PoolInfo[] public poolInfo;
-    // Info of each user that stakes  tokens.
+    // Info of each user that stakes tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
 
     //// pending rewards awaiting anyone to massUpdate
     uint256 public pendingRewards;
-
     uint256 public contractStartBlock;
     uint256 public epochCalculationStartBlock;
     uint256 public cumulativeRewardsSinceStart;
     uint256 public rewardsInThisEpoch;
     uint256 public epoch;
+
+    function getUserInfo(uint256 _pid, address _userAddress) external view returns (uint256 stakedAmouhnt) {
+        return userInfo[_pid][_userAddress].amount;
+    }
 
     // Returns fees generated since start of this contract
     function averageFeesPerBlockSinceStart()
@@ -300,19 +304,19 @@ contract Hal9kVault is OwnableUpgradeSafe {
     // [x] Does user that its deposited for update correcty?
     // [x] Does the depositor get their tokens decreased
     function depositFor(
-        address depositFor,
+        address _depositFor,
         uint256 _pid,
         uint256 _amount
     ) public {
         // requires no allowances
         PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][depositFor];
+        UserInfo storage user = userInfo[_pid][_depositFor];
 
         massUpdatePools();
 
         // Transfer pending tokens
         // to user
-        updateAndPayOutPending(_pid, depositFor); // Update the balances of person that amount is being deposited for
+        updateAndPayOutPending(_pid, _depositFor); // Update the balances of person that amount is being deposited for
 
         if (_amount > 0) {
             pool.token.safeTransferFrom(
@@ -324,7 +328,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         }
 
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12); /// This is deposited for address
-        emit Deposit(depositFor, _pid, _amount);
+        emit Deposit(_depositFor, _pid, _amount);
     }
 
     // Test coverage
