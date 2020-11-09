@@ -8,10 +8,10 @@ import './ERC1155Tradable.sol';
  */
 contract HAL9KCard is ERC1155Tradable {
 	constructor(address _proxyRegistryAddress) public ERC1155Tradable("H9KNFT", "H9K", _proxyRegistryAddress) {
-		_setBaseMetadataURI("https://api.hal9k.ai/v1/token/");
+		_setBaseMetadataURI("https://api.hal9k.ai/hals");
 	}
 
 	function contractURI() public view returns (string memory) {
-		return "https://api.hal9k.com/contract/hal9ks-erc1155";
+		return "https://api.hal9k.ai/contract/hal9k-erc1155";
 	}
 }
