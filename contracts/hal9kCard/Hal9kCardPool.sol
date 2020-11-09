@@ -10,35 +10,15 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import './ERC1155Tradable.sol';
 import '../IHal9kVault.sol';
 
-contract HAL9KTokenWrapper {
-	using SafeMath for uint256;
-	IERC20 public HAL9K;
-
-	constructor(IERC20 _HAL9KAddress) public {
-		HAL9K = IERC20(_HAL9KAddress);
-	}
-
-	uint256 private _totalSupply;
-	mapping(address => uint256) private _balances;
-
-	function totalSupply() public view returns (uint256) {
-		return _totalSupply;
-	}
-
-	function balanceOf(address account) public view returns (uint256) {
-		return _balances[account];
-	}
-}
-
-contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
+contract HAL9KCardPool is Ownable {
 	ERC1155Tradable public hal9kCards;
     IHal9kVault public hal9kVault;
 
     struct UserInfo {
         uint256 lastStageChangeTime;
-		uint256 stakedAmount;
-		uint256 startTime;
-		uint256 stage;
+        uint256 stakedAmount;
+        uint256 startTime;
+        uint256 stage;
         bool claimed;
     }
 
@@ -47,20 +27,20 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 
 	// Events
 	event stageUpdated(address addr, uint256 stage);
-	event addressChanged(address newAddress, address oldAddress);
+	event vaultAddressChanged(address newAddress, address oldAddress);
 
 	// functions
-	constructor(ERC1155Tradable _hal9kCardsAddress, IHal9kVault _hal9kVAultAddress) public HAL9KTokenWrapper(_HAL9KAddress) {
+	constructor(ERC1155Tradable _hal9kCardsAddress, IHal9kVault _hal9kVaultAddress) public HAL9KTokenWrapper(_HAL9KAddress) {
 		hal9kCards = _hal9kCardsAddress;
-		hal9kVault = IHal9kVault(_hal9kVAultAddress);
+		hal9kVault = IHal9kVault(_hal9kVaultAddress);
 	}
 
-	// Change the hal9k card address
-    function changeHal9kCardAddress(address _hal9kAddress) external onlyOwner {
-        address oldAddress = address(hal9kCards);
-        hal9kCards = IFeeApprover(_hal9kAddress);
+	// Change the hal9k vault address
+    function changeHal9kVaultAddress(address _hal9kVaultAddress) external onlyOwner {
+        address oldAddress = address(hal9kVault);
+        hal9kVault = IFeeApprover(_hal9kVaultAddress);
 
-        emit addressChanged(_hal9kAddress, oldAddress);
+        emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
 	
 	function startReceivingHal9K() public {
@@ -72,8 +52,8 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 
     function getDaysPassedAfterStakingStart() public view returns (uint256) {
         require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
-		uint256 days = (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
-		return days;
+        uint256 days = (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
+        return days;
     }
 
 	// backOrForth : back if true, forward if false
@@ -111,12 +91,11 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 		// Check if cards are available to be minted
 		require(_cardCount > 0, "Mint amount should be more than 1");
 		require(hal9kCards._exists(_cardId) != false, "Card not found");
-		require(hal9kCards.totalSupply(_cardId) < hal9kCards.maxSupply(card), "Max cards minted");
+		require(hal9kCards.totalSupply(_cardId) <= hal9kCards.maxSupply(card), "Max cards minted");
 		
 		// Validation
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-
 		hal9kCards.mint(msg.sender, _cardId, 1, "");
 	}
 
@@ -128,7 +107,6 @@ contract HAL9KCardPool is HAL9KTokenWrapper, Ownable {
 
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-
 		hal9kCards.burn(msg.sender, _cardId, 1);
 	}
 }
