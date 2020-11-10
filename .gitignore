@@ -12,3 +12,4 @@ Proxy/node_modules
 /prodartifacts
 .openzeppelin/.session
 .env
+package-lock.json
