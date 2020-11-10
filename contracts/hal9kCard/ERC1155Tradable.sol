@@ -5,7 +5,7 @@ import "./ERC1155.sol";
 import "./ERC1155MintBurn.sol";
 import "./ERC1155Metadata.sol";
 import "./MinterRole.sol";
-import "./WhitelistAdminRole";
+import "./WhitelistAdminRole.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
