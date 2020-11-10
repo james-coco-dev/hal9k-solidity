@@ -54,11 +54,11 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		_removeMinter(account);
 	}
 
-	function addMinter(address account) public onlyOwner {
+	function addMinter(address account) public override onlyOwner {
 		_addMinter(account);
 	}
 
-	function uri(uint256 _id) public view returns (string memory) {
+	function uri(uint256 _id) public view override returns (string memory) {
 		require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
 		return Strings.strConcat(baseMetadataURI, Strings.uint2str(_id));
 	}
@@ -95,7 +95,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @param _initialSupply Optional amount to supply the first owner
 	 * @param _uri Optional URI for this token type
 	 * @param _data Optional data to pass if receiver is contract
-	 * @return The newly created token ID
+	 * @return tokenId The newly created token ID
 	 */
 	function create(
 		uint256 _maxSupply,
@@ -158,7 +158,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	/**
 	 * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-free listings.
 	 */
-	function isApprovedForAll(address _owner, address _operator) public view returns (bool isOperator) {
+	function isApprovedForAll(address _owner, address _operator) public view override returns (bool isOperator) {
 		// Whitelist OpenSea proxy contract for easy trading.
 		ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
 		if (address(proxyRegistry.proxies(_owner)) == _operator) {
@@ -173,7 +173,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @param _id uint256 ID of the token to query the existence of
 	 * @return bool whether the token exists
 	 */
-	function _exists(uint256 _id) internal view returns (bool) {
+	function _exists(uint256 _id) public view returns (bool) {
 		return creators[_id] != address(0);
 	}
 

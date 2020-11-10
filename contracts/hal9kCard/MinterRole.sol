@@ -24,7 +24,7 @@ contract MinterRole is Context {
         return _minters.has(account);
     }
 
-    function addMinter(address account) public onlyMinter {
+    function addMinter(address account) public virtual onlyMinter {
         _addMinter(account);
     }
 
@@ -32,7 +32,7 @@ contract MinterRole is Context {
         _removeMinter(_msgSender());
     }
 
-    function _addMinter(address account) internal {
+    function _addMinter(address account) internal  {
         _minters.add(account);
         emit MinterAdded(account);
     }

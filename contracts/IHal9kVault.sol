@@ -12,5 +12,5 @@ interface IHal9kVault {
     function getUserInfo(
         uint256 _pid,
         address _userAddress
-    ) external;
+    ) external returns (uint256 stakedAmount);
 }

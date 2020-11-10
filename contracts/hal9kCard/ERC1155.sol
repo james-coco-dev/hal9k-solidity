@@ -172,10 +172,10 @@ contract ERC1155 is IERC165 {
    * @notice Queries the approval status of an operator for a given owner
    * @param _owner     The owner of the Tokens
    * @param _operator  Address of authorized operator
-   * @return True if the operator is approved, false if not
+   * @return isOperator Bool of approved for all
    */
   function isApprovedForAll(address _owner, address _operator)
-    public view returns (bool isOperator)
+    public view virtual returns (bool isOperator)
   {
     return operators[_owner][_operator];
   }
@@ -245,7 +245,7 @@ contract ERC1155 is IERC165 {
    * @param _interfaceID  The interface identifier, as specified in ERC-165
    * @return `true` if the contract implements `_interfaceID` and
    */
-  function supportsInterface(bytes4 _interfaceID) external view returns (bool) {
+  function supportsInterface(bytes4 _interfaceID) external view override returns (bool) {
     if (_interfaceID == INTERFACE_SIGNATURE_ERC165 ||
         _interfaceID == INTERFACE_SIGNATURE_ERC1155) {
       return true;

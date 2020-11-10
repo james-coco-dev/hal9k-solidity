@@ -97,7 +97,7 @@ interface IERC1155 {
    * @notice Queries the approval status of an operator for a given owner
    * @param _owner     The owner of the Tokens
    * @param _operator  Address of authorized operator
-   * @return           True if the operator is approved, false if not
+   * @return isOperator Bool of approved for all
    */
   function isApprovedForAll(address _owner, address _operator) external view returns (bool isOperator);
 

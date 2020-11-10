@@ -61,7 +61,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
     uint256 public rewardsInThisEpoch;
     uint256 public epoch;
 
-    function getUserInfo(uint256 _pid, address _userAddress) external view returns (uint256 stakedAmouhnt) {
+    function getUserInfo(uint256 _pid, address _userAddress) external view returns (uint256 stakedAmount) {
         return userInfo[_pid][_userAddress].amount;
     }
 
