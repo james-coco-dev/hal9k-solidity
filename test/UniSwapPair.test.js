@@ -1,4 +1,4 @@
-const { bigNumberify, defaultAbiCoder, BigNumber } = require("ethers/utils");
+
 const HAL9kToken = artifacts.require("HAL9K");
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 const Hal9kVault = artifacts.require("Hal9kVault");
@@ -9,22 +9,11 @@ const UniswapV2Factory = artifacts.require("UniswapV2Factory");
 const FeeApprover = artifacts.require("FeeApprover");
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02");
 
-contract(
-  "Hal9kToken",
-  ([
-    alice,
-    john,
-    minter,
-    dev,
-    burner,
-    clean,
-    clean2,
-    clean3,
-    clean4,
-    clean5,
-    clean6,
-  ]) => {
+contract("Hal9kToken",() => {
+    let alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5, clean6;
+    
     before(async () => {
+      [alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5, clean6] = await web3.eth.getAccounts();
       this.factory = await UniswapV2Factory.new(alice, { from: alice });
       this.weth = await WETH9.new({ from: john });
       await this.weth.deposit({ from: alice, value: "1000000000000000000000" });

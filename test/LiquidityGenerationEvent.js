@@ -1,26 +1,19 @@
+const { expectRevert, time } = require("@openzeppelin/test-helpers");
 const Hal9kToken = artifacts.require("HAL9K");
 const Hal9kVault = artifacts.require("Hal9kVault");
-const { expectRevert, time } = require("@openzeppelin/test-helpers");
 const WETH9 = artifacts.require("WETH9");
 const UniswapV2Pair = artifacts.require("UniswapV2Pair");
 const UniswapV2Factory = artifacts.require("UniswapV2Factory");
 const FeeApprover = artifacts.require("FeeApprover");
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02");
 
-contract(
-  "Liquidity Generation tests",
-  ([
-    alice,
-    john,
-    minter,
-    dev,
-    burner,
-    clean,
-    clean2,
-    clean3,
-    clean4,
-    clean5,
-  ]) => {
+describe("Liquidity Generation tests", () => {
+    let alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5;
+
+    before(async () => {
+        [alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5] = await web3.eth.getAccounts();
+    })
+
     beforeEach(async () => {
       this.factory = await UniswapV2Factory.new(alice, { from: alice });
       this.weth = await WETH9.new({ from: john });
@@ -42,7 +35,6 @@ contract(
         this.factory.address
       );
       await this.feeapprover.setPaused(false, { from: alice });
-
       await this.hal9k.setShouldTransferChecker(this.feeapprover.address, {
         from: alice,
       });
@@ -52,7 +44,7 @@ contract(
         from: alice,
       });
     });
-
+		
     it("Should have a correct balance starting", async () => {
       assert.equal(
         (await web3.eth.getBalance(this.hal9k.address)).valueOf().toString(),
@@ -71,6 +63,7 @@ contract(
         "Liquidity Generation Event over"
       );
     });
+
     it("Should not let anyone contribute without agreement timer", async () => {
       assert.equal(
         (await web3.eth.getBalance(this.hal9k.address)).valueOf().toString(),
@@ -85,6 +78,7 @@ contract(
         "No agreement provided"
       );
     });
+    
     it("Should handle deposits of nothing", async () => {
       assert.equal(
         (await web3.eth.getBalance(this.hal9k.address)).valueOf().toString(),
