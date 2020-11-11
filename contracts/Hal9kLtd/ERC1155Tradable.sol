@@ -6,6 +6,7 @@ import "./ERC1155MintBurn.sol";
 import "./ERC1155Metadata.sol";
 import "./MinterRole.sol";
 import "./WhitelistAdminRole.sol";
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -104,11 +105,12 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		bytes calldata _data
 	) external onlyWhitelistAdmin returns (uint256 tokenId) {
 		require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
-		uint256 _id = _getNextTokenID();
-		_incrementTokenTypeId();
-		
-		creators[_id] = msg.sender;
 
+		uint256 _id = _getNextTokenID();
+		console.log("New Hal9k Card ID : ", _id);
+		_incrementTokenTypeId();
+
+		creators[_id] = msg.sender;
 		if (bytes(_uri).length > 0) {
 			emit URI(_uri, _id);
 		}
@@ -133,6 +135,8 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		bytes memory _data
 	) public onlyMinter {
 		uint256 tokenId = _id;
+		
+		console.log("Minting token ID : ", tokenId);
 		require(tokenSupply[tokenId] < tokenMaxSupply[tokenId], "Max supply reached");
 		_mint(_to, _id, _quantity, _data);
 		tokenSupply[_id] = tokenSupply[_id].add(_quantity);
