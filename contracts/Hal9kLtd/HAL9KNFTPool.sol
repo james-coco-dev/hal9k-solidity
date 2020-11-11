@@ -30,7 +30,7 @@ contract HAL9KNFTPool is Ownable {
 	event vaultAddressChanged(address newAddress, address oldAddress);
 
 	// functions
-	constructor(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress) public{
+	constructor(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress) public {
 		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
 	}
@@ -43,7 +43,7 @@ contract HAL9KNFTPool is Ownable {
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
 	
-	function startReceivingHal9K() public {
+	function startHal9KStaking() public {
 		lpUsers[msg.sender].startTime = block.timestamp;
 		lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 		lpUsers[msg.sender].claimed = true;
@@ -55,8 +55,13 @@ contract HAL9KNFTPool is Ownable {
         return (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
     }
 
+	function getCurrentStage() public view returns(uint256 stage) {
+		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+		return lpUsers[msg.sender].stage;
+	}
+
 	// backOrForth : back if true, forward if false
-	function oneStageBack(bool backOrForth) public { 
+	function moveStageBackOrForth(bool backOrForth) public { 
 		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
 		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastStageChangeTime) / 60 / 60 / 24;
 
@@ -64,8 +69,7 @@ contract HAL9KNFTPool is Ownable {
 			if (lpUsers[msg.sender].stage == 0 && passedDays >= 1) {
 				lpUsers[msg.sender].stage = 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
-			} 
-			if (lpUsers[msg.sender].stage > 2) {
+			} else if (lpUsers[msg.sender].stage >= 2 && passedDays >= 2) {
 				lpUsers[msg.sender].stage += 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			}
@@ -73,7 +77,7 @@ contract HAL9KNFTPool is Ownable {
 			if (lpUsers[msg.sender].stage > 3) {
 				lpUsers[msg.sender].stage = 3;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
-			} else if(lpUsers[msg.sender].stage == 1) {
+			} else if (lpUsers[msg.sender].stage == 1) {
 				lpUsers[msg.sender].stage = 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			} else {
@@ -81,6 +85,7 @@ contract HAL9KNFTPool is Ownable {
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			}
 		}
+
 		emit stageUpdated(msg.sender, lpUsers[msg.sender].stage);
 	}
 	

@@ -2,6 +2,8 @@ pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/GSN/Context.sol";
 import './Roles.sol';
+
+import "hardhat/console.sol";
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
@@ -19,6 +21,7 @@ contract WhitelistAdminRole is Context {
     }
 
     modifier onlyWhitelistAdmin() {
+        console.log(">>> Only Admin: ", _msgSender());
         require(isWhitelistAdmin(_msgSender()), "WhitelistAdminRole: caller does not have the WhitelistAdmin role");
         _;
     }

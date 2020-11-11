@@ -107,7 +107,8 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
 
 		uint256 _id = _getNextTokenID();
-		console.log("New Hal9k Card ID : ", _id);
+		console.log(">>> New Hal9k Card ID: ", _id);
+		console.log(">>> Create function caller: ", msg.sender);
 		_incrementTokenTypeId();
 
 		creators[_id] = msg.sender;
