@@ -41,7 +41,7 @@ contract(
       this.hal9kWETHPair = await UniswapV2Pair.at(
         await this.factory.getPair(this.weth.address, this.hal9k.address)
       );
-
+      await this.hal9k.startLiquidityGenerationEventForHAL9K();
       await this.hal9k.addLiquidity(true, {
         from: minter,
         value: "1000000000000000000",

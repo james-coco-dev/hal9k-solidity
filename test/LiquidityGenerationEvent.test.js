@@ -34,7 +34,7 @@ contract(
         this.factory.address,
         { from: alice }
       );
-
+      await this.hal9k.startLiquidityGenerationEventForHAL9K();
       this.feeapprover = await FeeApprover.new({ from: alice });
       await this.feeapprover.initialize(
         this.hal9k.address,
