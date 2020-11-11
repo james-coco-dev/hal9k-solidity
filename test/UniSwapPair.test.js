@@ -99,7 +99,7 @@ contract("Hal9kToken",() => {
     });
 
     it("Token 0 has to be weth", async () => {
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
     });
 
     it("Constructs fee multiplier correctly", async () => {
@@ -1085,7 +1085,7 @@ contract("Hal9kToken",() => {
         { from: minter }
       );
 
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
 
       // Call burn from minter
       await this.hal9kWETHPair.transfer(this.hal9kWETHPair.address, "10000", {
@@ -1231,8 +1231,8 @@ contract("Hal9kToken",() => {
       });
 
       assert.equal(await this.router.WETH(), this.weth.address);
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
-      assert.equal(await this.hal9kWETHPair.token1(), this.hal9k.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token0(), this.hal9k.address);
 
       await this.hal9kWETHPair.approve(this.router.address, "110000000000000", {
         from: minter,
