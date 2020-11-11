@@ -10,8 +10,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import './ERC1155Tradable.sol';
 import '../IHal9kVault.sol';
 
-contract HAL9KCardPool is Ownable {
-	ERC1155Tradable public hal9kCards;
+contract HAL9KNFTPool is Ownable {
+	ERC1155Tradable public hal9kLtd;
     IHal9kVault public hal9kVault;
 
     struct UserInfo {
@@ -30,8 +30,8 @@ contract HAL9KCardPool is Ownable {
 	event vaultAddressChanged(address newAddress, address oldAddress);
 
 	// functions
-	constructor(ERC1155Tradable _hal9kCardsAddress, IHal9kVault _hal9kVaultAddress) public{
-		hal9kCards = _hal9kCardsAddress;
+	constructor(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress) public{
+		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
 	}
 
@@ -88,23 +88,23 @@ contract HAL9KCardPool is Ownable {
 	function mintCardForUser(uint256 _pid, uint256 _stakedAmount, uint256 _cardId, uint256 _cardCount) public {
 		// Check if cards are available to be minted
 		require(_cardCount > 0, "Mint amount should be more than 1");
-		require(hal9kCards._exists(_cardId) != false, "Card not found");
-		require(hal9kCards.totalSupply(_cardId) <= hal9kCards.maxSupply(_cardId), "Max cards minted");
+		require(hal9kLtd._exists(_cardId) != false, "Card not found");
+		require(hal9kLtd.totalSupply(_cardId) <= hal9kLtd.maxSupply(_cardId), "Max cards minted");
 		
 		// Validation
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-		hal9kCards.mint(msg.sender, _cardId, 1, "");
+		hal9kLtd.mint(msg.sender, _cardId, 1, "");
 	}
 
 	// Burn NFT from user
 	function burnCardForUser(uint256 _pid, uint256 _stakedAmount, uint256 _cardId, uint256 _cardCount) public {
 		require(_cardCount > 0, "Burn amount should be more than 1");
-		require(hal9kCards._exists(_cardId) == true, "Card doesn't exist");
-		require(hal9kCards.totalSupply(_cardId) > 0, "No cards exist");
+		require(hal9kLtd._exists(_cardId) == true, "Card doesn't exist");
+		require(hal9kLtd.totalSupply(_cardId) > 0, "No cards exist");
 
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-		hal9kCards.burn(msg.sender, _cardId, 1);
+		hal9kLtd.burn(msg.sender, _cardId, 1);
 	}
 }
