@@ -60,7 +60,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
     });
 
@@ -78,7 +78,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await expectRevert(
         this.hal9k.addLiquidity(null, { from: clean }),
@@ -92,7 +92,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, { from: clean });
       assert.equal(
@@ -101,7 +101,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       assert.equal(
         (await this.hal9k.ethContributed(clean)).valueOf().toString(),
@@ -116,7 +116,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, { from: clean, value: 99 });
       assert.equal(
@@ -125,7 +125,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       assert.equal(
         (await this.hal9k.ethContributed(clean)).valueOf().toString(),
@@ -162,7 +162,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, { from: clean, value: 100 });
       assert.equal(
@@ -187,7 +187,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, {
         from: clean,
@@ -229,7 +229,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, {
         from: clean2,
@@ -270,10 +270,16 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
-      await this.hal9k.addLiquidity(true, { from: clean3, value: "5000000000" });
-      await this.hal9k.addLiquidity(true, { from: clean4, value: "5000000000" });
+      await this.hal9k.addLiquidity(true, {
+        from: clean3,
+        value: "5000000000",
+      });
+      await this.hal9k.addLiquidity(true, {
+        from: clean4,
+        value: "5000000000",
+      });
       assert.equal(
         (await this.hal9k.ethContributed(clean3)).valueOf().toString(),
         "5000000000"
@@ -330,7 +336,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
       await this.hal9k.addLiquidity(true, {
         from: clean3,
@@ -354,7 +360,7 @@ contract(
       );
       assert.equal(
         (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString(),
-        10000e18
+        9000e18
       );
 
       const aliceETHPerviously =
@@ -374,7 +380,7 @@ contract(
 
       assert.equal(
         (await this.hal9k.balanceOf(alice)).valueOf().toString(),
-        10000e18
+        9000e18
       );
     });
 

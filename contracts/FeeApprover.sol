@@ -46,11 +46,7 @@ contract FeeApprover is OwnableUpgradeSafe {
     function setFeeMultiplier(uint8 _feeMultiplier) public onlyOwner {
         feePercentX100 = _feeMultiplier;
     }
-
-    function setHal9kTokenAddress(address _hal9kTokenAddress) public onlyOwner {
-        hal9kTokenAddress = _hal9kTokenAddress;
-    }
-
+    
     function setHal9kVaultAddress(address _hal9kVaultAddress) public onlyOwner {
         hal9kVaultAddress = _hal9kVaultAddress;
     }
