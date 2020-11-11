@@ -1,7 +1,7 @@
 const { bigNumberify, defaultAbiCoder, BigNumber } = require("ethers/utils");
-const CoreToken = artifacts.require("HAL9K");
+const HAL9kToken = artifacts.require("HAL9K");
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
-const CoreVault = artifacts.require("Hal9kVault");
+const Hal9kVault = artifacts.require("Hal9kVault");
 
 const WETH9 = artifacts.require("WETH9");
 const UniswapV2Pair = artifacts.require("UniswapV2Pair");
@@ -33,7 +33,7 @@ contract(
         this.weth.address,
         { from: alice }
       );
-      this.hal9k = await CoreToken.new(
+      this.hal9k = await HAL9kToken.new(
         this.router.address,
         this.factory.address,
         { from: alice }
@@ -60,7 +60,7 @@ contract(
         (await this.hal9k.balanceOf(this.hal9kWETHPair.address))
           .valueOf()
           .toString(),
-        10000e18
+        9000e18
       );
 
       await this.hal9kWETHPair.sync();
@@ -98,12 +98,12 @@ contract(
     });
 
     beforeEach(async () => {
-      this.hal9kvault = await CoreVault.new({ from: alice });
+      this.hal9kvault = await Hal9kVault.new({ from: alice });
       await this.hal9kvault.initialize(this.hal9k.address, dev, clean);
 
       await this.weth.transfer(minter, "10000000000000000000", { from: alice });
 
-      await this.feeapprover.setCoreVaultAddress(this.hal9kvault.address, {
+      await this.feeapprover.setHal9kVaultAddress(this.hal9kvault.address, {
         from: alice,
       });
       // Set pair in the uni reert contract
@@ -859,7 +859,7 @@ contract(
       );
       await this.hal9kvault.deposit(0, "0", { from: john });
       assert.equal(
-        (await this.hal9kvault.pendingCore(0, clean2)).valueOf().toString(),
+        (await this.hal9kvault.pendingHal9k(0, clean2)).valueOf().toString(),
         "9276"
       );
 
@@ -874,8 +874,8 @@ contract(
         balanceOfDev + 724
       );
 
-      // assert.equal((await this.hal9kvault.pendingCore(0, clean2)).valueOf().toString(), "9276");
-      // assert.equal((await this.hal9kvault.pendingCore(0, dev)).valueOf().toString(), "67158");
+      // assert.equal((await this.hal9kvault.pendingHal9k(0, clean2)).valueOf().toString(), "9276");
+      // assert.equal((await this.hal9kvault.pendingHal9k(0, dev)).valueOf().toString(), "67158");
 
       assert.equal(
         (await this.hal9k.balanceOf(dev)).valueOf().toString(),
@@ -890,7 +890,7 @@ contract(
       await this.hal9kvault.deposit(0, "0", { from: john });
 
       assert.equal(
-        (await this.hal9kvault.pendingCore(0, clean2)).valueOf().toString(),
+        (await this.hal9kvault.pendingHal9k(0, clean2)).valueOf().toString(),
         "9000"
       );
       await this.hal9kvault.deposit(0, "0", { from: clean2 });
@@ -956,7 +956,7 @@ contract(
         "0"
       );
       assert.equal(
-        (await this.hal9kvault.pendingCore(0, clean2)).valueOf().toString(),
+        (await this.hal9kvault.pendingHal9k(0, clean2)).valueOf().toString(),
         "10"
       );
       await this.hal9kvault.deposit(0, "0", { from: clean2 });
