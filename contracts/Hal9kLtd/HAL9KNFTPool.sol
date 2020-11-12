@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.so
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import './ERC1155Tradable.sol';
 import '../IHal9kVault.sol';
+import "hardhat/console.sol";
 
 contract HAL9KNFTPool is Ownable {
 	ERC1155Tradable public hal9kLtd;
@@ -65,20 +66,20 @@ contract HAL9KNFTPool is Ownable {
 		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
 		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastStageChangeTime) / 60 / 60 / 24;
 
+		console.log("Passed days: ", passedDays);
 		if (backOrForth == false) {	// If user moves to the next stage
 			if (lpUsers[msg.sender].stage == 0 && passedDays >= 1) {
 				lpUsers[msg.sender].stage = 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
-			} else if (lpUsers[msg.sender].stage >= 2 && passedDays >= 2) {
+			} else if (lpUsers[msg.sender].stage >= 1 && passedDays >= 2) {
 				lpUsers[msg.sender].stage += 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			}
 		} else {	// If user decides to go one stage back
-			if (lpUsers[msg.sender].stage > 3) {
+			if (lpUsers[msg.sender].stage == 0) {
+				lpUsers[msg.sender].stage = 0;
+			} else if (lpUsers[msg.sender].stage > 3) {
 				lpUsers[msg.sender].stage = 3;
-				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
-			} else if (lpUsers[msg.sender].stage == 1) {
-				lpUsers[msg.sender].stage = 1;
 				lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 			} else {
 				lpUsers[msg.sender].stage -= 1;
@@ -86,6 +87,7 @@ contract HAL9KNFTPool is Ownable {
 			}
 		}
 
+		console.log("Changed stage: ", lpUsers[msg.sender].stage);
 		emit stageUpdated(msg.sender, lpUsers[msg.sender].stage);
 	}
 	
