@@ -105,10 +105,10 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	) external onlyWhitelistAdmin returns (uint256 tokenId) {
 		require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
 
+		console.log(">>> Original: ", _currentTokenID);
 		uint256 _id = _getNextTokenID();
-		console.log(">>> New Hal9k Card ID: ", _id);
-		console.log(">>> Create function caller: ", msg.sender);
 		_incrementTokenTypeId();
+		console.log(">>> New: ", _currentTokenID);
 
 		creators[_id] = msg.sender;
 		if (bytes(_uri).length > 0) {
@@ -193,6 +193,6 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @dev increments the value of _currentTokenID
 	 */
 	function _incrementTokenTypeId() private {
-		_currentTokenID++;
+		_currentTokenID ++;
 	}
 }
