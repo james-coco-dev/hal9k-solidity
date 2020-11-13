@@ -6,6 +6,8 @@ const assert = chai.assert;
 
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 const { artifacts } = require("hardhat");
+
+const HAL9kToken = artifacts.require("HAL9K");
 const HAL9KLtd = artifacts.require('HAL9KLtd');
 const Hal9kVault = artifacts.require("Hal9kVault");
 const HAL9KNFTPool = artifacts.require("HAL9KNFTPool");
@@ -16,15 +18,23 @@ const FeeApprover = artifacts.require("FeeApprover");
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02");
 
 contract('HAL9K NFT Pool Test', async (accounts) => {
-  const [nate, chris, alice, john, minter, clean] = accounts
+  const [alice, john, minter, dev, burner, clean] = accounts
+
+  // alice: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+  // john: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+  // minter: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+  // dev: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
+  // burner: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65
+  // clean: 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc
 
   describe("HAL9K NFT Pool", () => {
     beforeEach(async () => {
-      this.hal9kVault = await Hal9kVault.new(nate, { from: nate });
-      this.hal9kLtd = await HAL9KLtd.new(nate, { from: nate });
-      this.hal9kPool = await HAL9KNFTPool.new(nate, chris);
+      this.hal9kVault = await Hal9kVault.new(alice, { from: alice });
+      this.hal9kLtd = await HAL9KLtd.new(alice, { from: alice });
+      this.hal9kPool = await HAL9KNFTPool.new(alice, burner);
     });
     
+    // This has problem.
     it("Should create and mint the nft card correctly", async () => {
       // Should create and mint the nft card correctly
       this.firstCardId = await this.hal9kLtd.create.call(100, 10, "https://images.hal9k.ai/1", []);
@@ -140,14 +150,32 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
         await this.feeapprover.setHal9kVaultAddress(this.hal9kvault.address, {from: alice});
       });
 
-      if ("Should mint card for user correctly", async () => {
+      it ("Should mint card for user correctly", async () => {
+        // Create hal9k/WETH pair and transfer it to minter
+        await this.weth.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
+        await this.hal9k.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
+        await this.hal9kWETHPair.mint(minter);
+        await this.hal9kWETHPair.transfer(this.hal9kWETHPair.address, "2000000", {from: minter});
+  
+        // aprove spend of everything
+        await this.hal9kWETHPair.approve(this.hal9kvault.address, "10000000000000", { from: minter });
+  
+        // make pair
+        await this.hal9kvault.add("100", this.hal9kWETHPair.address, true, true, {from: alice});
 
+        const LPTokenBalanceOfMinter = await this.hal9kWETHPair.balanceOf(minter);
+        console.log("LPTokenBalanceOfMinter should bee 100", LPTokenBalanceOfMinter);
+        assert.notEqual(LPTokenBalanceOfMinter, "0");
+  
+        await this.hal9kvault.deposit(0, "100", { from: minter });
+        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kvault.address)).valueOf().toString(), "100");
+        await this.hal9kvault.deposit(0, "0", { from: minter });
+        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kvault.address)).valueOf().toString(), "100");
       });
     
-      if ("Should burn card for user correctly", async () => {
+      it ("Should burn card for user correctly", async () => {
         
       });
     });
   });
-
 })

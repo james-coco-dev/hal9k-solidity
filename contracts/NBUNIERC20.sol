@@ -91,7 +91,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
 
     /**
      */
-    function startLiquidityGenerationEventForHAL9K() public onlyOwner{
+    function startLiquidityGenerationEventForHAL9K() public onlyOwner {
         contractStartTimestamp = block.timestamp;
     }
 
