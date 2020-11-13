@@ -113,7 +113,7 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
     });
 
     describe("Test Hal9k NFT Card mint and burn", () => {
-      beforeEach(async() => {
+      before(async() => {
         this.factory = await UniswapV2Factory.new(alice, { from: alice });
         this.weth = await WETH9.new({ from: john });
         // Give alice weth
@@ -149,12 +149,14 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
         console.log("Balance of minter is ",(await this.hal9k.balanceOf(minter)).valueOf().toString());
         console.log("Balance of sender is ",(await this.weth.balanceOf(alice)).valueOf().toString());
         assert.equal(await this.factory.getPair(this.hal9k.address, this.weth.address), this.hal9kWETHPair.address);
+      });
 
+      beforeEach(async() => {
         // Here, clean is super admin address
         await this.hal9kVault.initialize(this.hal9k.address, dev, clean);
         await this.weth.transfer(minter, "10000000000000000000", { from: alice });
         await this.feeapprover.setHal9kVaultAddress(this.hal9kVault.address, {from: alice});
-      });
+      })
 
       it ("Should mint card for user correctly", async () => {
         // Create hal9k/WETH pair and transfer it to minter
