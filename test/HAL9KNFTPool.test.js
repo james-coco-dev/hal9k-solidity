@@ -37,17 +37,17 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
     // This has problem.
     it("Should create and mint the nft card correctly", async () => {
       // Should create and mint the nft card correctly
-      this.firstCardId = await this.hal9kLtd.create.call(100, 10, "https://images.hal9k.ai/1", []);
+      await this.hal9kLtd.create(100, 10, "https://images.hal9k.ai/1", []);
+      this.firstCardId = await this.hal9kLtd.getCurrentTokenID();
       expect(this.firstCardId.toNumber()).to.equal(1);
-      console.log("First card created: ", this.firstCardId.toNumber());
 
-      this.secondCardId = await this.hal9kLtd.create.call(100, 20, "https://images.hal9k.ai/2", []);
-      // expect(this.secondCardId.toNumber()).to.equal(2);
-      console.log("Second card created: ", this.secondCardId.toNumber());
+      await this.hal9kLtd.create(100, 20, "https://images.hal9k.ai/2", []);
+      this.secondCardId = await this.hal9kLtd.getCurrentTokenID();
+      expect(this.secondCardId.toNumber()).to.equal(2);
 
-      this.thirdCardId = await this.hal9kLtd.create.call(100, 30, "https://images.hal9k.ai/3", []);
-      // expect(this.thirdCardId.toNumber()).to.equal(3);
-      console.log("Third card created: ", this.thirdCardId.toNumber());
+      await this.hal9kLtd.create(100, 20, "https://images.hal9k.ai/2", []);
+      this.thirdCardId = await this.hal9kLtd.getCurrentTokenID();
+      expect(this.thirdCardId.toNumber()).to.equal(3);
     })
 
     it("Should start hal9k nft card reward", async () => {
@@ -158,7 +158,6 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
 
       it ("Should mint card for user correctly", async () => {
         // Create hal9k/WETH pair and transfer it to minter
-        console.log("------------------");
         await this.weth.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
         await this.hal9k.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
         await this.hal9kWETHPair.mint(minter);
