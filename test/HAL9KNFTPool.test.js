@@ -116,23 +116,28 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
       beforeEach(async() => {
         this.factory = await UniswapV2Factory.new(alice, { from: alice });
         this.weth = await WETH9.new({ from: john });
+        // Give alice weth
         await this.weth.deposit({ from: alice, value: "1000000000000000000000" });
 
+        // Create router, hal9k, weth/eth pair
         this.router = await UniswapV2Router02.new(this.factory.address, this.weth.address, { from: alice });
         this.hal9k = await HAL9kToken.new(this.router.address, this.factory.address, { from: alice });
         this.hal9kWETHPair = await UniswapV2Pair.at(await this.factory.getPair(this.weth.address, this.hal9k.address));
 
+        // Let's start LGE and give mentor the lp tokens 
         await this.hal9k.startLiquidityGenerationEventForHAL9K();
         await this.hal9k.addLiquidity(true, { from: minter, value: "1000000000000000000"});
         await time.increase(60 * 60 * 24 * 7 + 1);
         await this.hal9k.addLiquidityToUniswapHAL9KxWETHPair();
         await this.hal9k.claimLPTokens({ from: minter });
 
+        console.log("Weth balance in the pair: ", (await this.weth.balanceOf(this.hal9kWETHPair.address)).valueOf().toString());
+        console.log("Hal9k balance in the pair: ", (await this.hal9k.balanceOf(this.hal9kWETHPair.address)).valueOf().toString());
         assert.equal((await this.weth.balanceOf(this.hal9kWETHPair.address)).valueOf().toString(), "1000000000000000000");
         assert.equal((await this.hal9k.balanceOf(this.hal9kWETHPair.address)).valueOf().toString(), 9000e18);
-
+        
         await this.hal9kWETHPair.sync();
-        console.log(this.hal9k.address);
+        console.log("Hal9k address: ", this.hal9k.address);
 
         this.feeapprover = await FeeApprover.new({ from: alice });
         await this.feeapprover.initialize(this.hal9k.address, this.weth.address, this.factory.address);
@@ -142,35 +147,37 @@ contract('HAL9K NFT Pool Test', async (accounts) => {
           { from: minter, value: "5000000000000000000000" });
 
         console.log("Balance of minter is ",(await this.hal9k.balanceOf(minter)).valueOf().toString());
+        console.log("Balance of sender is ",(await this.weth.balanceOf(alice)).valueOf().toString());
         assert.equal(await this.factory.getPair(this.hal9k.address, this.weth.address), this.hal9kWETHPair.address);
 
-        this.hal9kvault = await Hal9kVault.new({ from: alice });
-        await this.hal9kvault.initialize(this.hal9k.address, dev, clean);
+        // Here, clean is super admin address
+        await this.hal9kVault.initialize(this.hal9k.address, dev, clean);
         await this.weth.transfer(minter, "10000000000000000000", { from: alice });
-        await this.feeapprover.setHal9kVaultAddress(this.hal9kvault.address, {from: alice});
+        await this.feeapprover.setHal9kVaultAddress(this.hal9kVault.address, {from: alice});
       });
 
       it ("Should mint card for user correctly", async () => {
         // Create hal9k/WETH pair and transfer it to minter
+        console.log("------------------");
         await this.weth.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
         await this.hal9k.transfer(this.hal9kWETHPair.address, "100000000", {from: minter});
         await this.hal9kWETHPair.mint(minter);
         await this.hal9kWETHPair.transfer(this.hal9kWETHPair.address, "2000000", {from: minter});
   
         // aprove spend of everything
-        await this.hal9kWETHPair.approve(this.hal9kvault.address, "10000000000000", { from: minter });
+        await this.hal9kWETHPair.approve(this.hal9kVault.address, "10000000000000", { from: minter });
   
         // make pair
-        await this.hal9kvault.add("100", this.hal9kWETHPair.address, true, true, {from: alice});
+        await this.hal9kVault.add("100", this.hal9kWETHPair.address, true, true, {from: alice});
 
         const LPTokenBalanceOfMinter = await this.hal9kWETHPair.balanceOf(minter);
         console.log("LPTokenBalanceOfMinter should bee 100", LPTokenBalanceOfMinter);
         assert.notEqual(LPTokenBalanceOfMinter, "0");
   
-        await this.hal9kvault.deposit(0, "100", { from: minter });
-        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kvault.address)).valueOf().toString(), "100");
-        await this.hal9kvault.deposit(0, "0", { from: minter });
-        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kvault.address)).valueOf().toString(), "100");
+        await this.hal9kVault.deposit(0, "100", { from: minter });
+        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kVault.address)).valueOf().toString(), "100");
+        await this.hal9kVault.deposit(0, "0", { from: minter });
+        assert.equal((await this.hal9kWETHPair.balanceOf(this.hal9kVault.address)).valueOf().toString(), "100");
       });
     
       it ("Should burn card for user correctly", async () => {
