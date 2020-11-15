@@ -69,6 +69,7 @@ const deployToken = async () => {
   connectedWallet = wallet.connect(provider);
 
   const args=[process.env.UNISWAPROUTER, process.env.UNISWAPFACTORY];
+
   const token = await deployContract(
     tokenUnpacked.abi,
     tokenUnpacked.bytecode,
@@ -78,58 +79,44 @@ const deployToken = async () => {
   );
 
   console.log(`⌛ Deploying ${tokenUnpacked.contractName}...`);
-  await connectedWallet.provider.waitForTransaction(
-    token.deployTransaction.hash
-  );
+  await connectedWallet.provider.waitForTransaction(token.deployTransaction.hash);
   console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
-  /*
-  console.log(`⌛ calling createUniswapPairMainnet...`);
-  let tx = await token.createUniswapPairMainnet();
-  console.log(`⌛ createUniswapPairMainnet...`);
-  await connectedWallet.provider.waitForTransaction(tx.hash);
-  console.log(
-    `✅ Called createUniswapPairMainnet() on token at ${token.address}`
-  );
+  
+  // console.log(`⌛ calling createUniswapPairMainnet...`);
+  // let tx = await token.createUniswapPairMainnet();
+  // console.log(`⌛ createUniswapPairMainnet...`);
+  // await connectedWallet.provider.waitForTransaction(tx.hash);
+  // console.log(`✅ Called createUniswapPairMainnet() on token at ${token.address}`);
 
-  const feeApproverArgs = [token.address, wethAddress, uniswapFactoryAddress];
+  // const feeApproverArgs = [token.address, wethAddress, uniswapFactoryAddress];
+  // // Now, the fee approver contract
+  // const feeApprover = await deployContract(
+  //   feeApproverUnpacked.abi,
+  //   feeApproverUnpacked.bytecode,
+  //   wallet,
+  //   provider,
+  //   feeApproverArgs
+  // );
 
-  // Now, the fee approver contract
-  const feeApprover = await deployContract(
-    feeApproverUnpacked.abi,
-    feeApproverUnpacked.bytecode,
-    wallet,
-    provider,
-    feeApproverArgs
-  );
-  console.log(`⌛ Deploying feeApprover...`);
-  await connectedWallet.provider.waitForTransaction(
-    feeApprover.deployTransaction.hash
-  );
-  console.log(`✅ Deployed feeApprover.`);
-  // Now update the token to refer to the fee approver
-  let setTransferCheckerResult = await token.setShouldTransferChecker(
-    feeApprover.address
-  );
-  console.log(`⌛ setShouldTransferChecker...`);
-  await connectedWallet.provider.waitForTransaction(
-    setTransferCheckerResult.hash
-  );
-  console.log(
-    `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address}`
-  );
-  let setFeeBearerResult = await token.setFeeBearer(wallet.address);
-  console.log(`⌛ setFeeBearer...`);
-  await connectedWallet.provider.waitForTransaction(setFeeBearerResult.hash);
-  console.log(
-    `✅ Called setFeeBearer(${wallet.address} on token at ${token.address})`
-  );
+  // console.log(`⌛ Deploying feeApprover...`);
+  // await connectedWallet.provider.waitForTransaction(feeApprover.deployTransaction.hash);
+  // console.log(`✅ Deployed feeApprover.`);
 
-  console.log(setTransferCheckerResult);
-  console.log(setFeeBearerResult);
+  // // Now update the token to refer to the fee approver
+  // let setTransferCheckerResult = await token.setShouldTransferChecker(feeApprover.address);
 
-  console.log("All done1!");
+  // console.log(`⌛ setShouldTransferChecker...`);
+  // await connectedWallet.provider.waitForTransaction(setTransferCheckerResult.hash);
+  // console.log(`✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address}`);
+  
+  // let setFeeBearerResult = await token.setFeeBearer(wallet.address);
+  // console.log(`⌛ setFeeBearer...`);
+  // await connectedWallet.provider.waitForTransaction(setFeeBearerResult.hash);
+  // console.log(`✅ Called setFeeBearer(${wallet.address} on token at ${token.address})`);
 
-  console.log("All done!");*/
+  // console.log(setTransferCheckerResult);
+  // console.log(setFeeBearerResult);
+  // console.log("All done!");
 };
 
 deployToken();
