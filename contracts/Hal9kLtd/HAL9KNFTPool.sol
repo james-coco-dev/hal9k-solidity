@@ -100,8 +100,10 @@ contract HAL9KNFTPool is Ownable {
 		
 		// Validation
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
+		console.log("Mint Card For User (staked amount): ", stakedAmount, _stakedAmount);
+		console.log("Caller of MintCardForUser function: ", msg.sender, _cardCount);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-		hal9kLtd.mint(msg.sender, _cardId, 1, "");
+		hal9kLtd.mint(msg.sender, _cardId, _cardCount, "");
 	}
 
 	// Burn NFT from user
@@ -112,6 +114,6 @@ contract HAL9KNFTPool is Ownable {
 
 		uint256 stakedAmount = hal9kVault.getUserInfo(_pid, msg.sender);
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
-		hal9kLtd.burn(msg.sender, _cardId, 1);
+		hal9kLtd.burn(msg.sender, _cardId, _cardCount);
 	}
 }

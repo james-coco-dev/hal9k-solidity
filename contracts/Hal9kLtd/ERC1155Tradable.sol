@@ -69,6 +69,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @return amount of token in existence
 	 */
 	function totalSupply(uint256 _id) public view returns (uint256) {
+		console.log("tokenSupply : ", tokenSupply[_id]);
 		return tokenSupply[_id];
 	}
 
@@ -142,6 +143,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		require(tokenSupply[tokenId] < tokenMaxSupply[tokenId], "Max supply reached");
 		_mint(_to, _id, _quantity, _data);
 		tokenSupply[_id] = tokenSupply[_id].add(_quantity);
+		console.log("Token Supply after minting", tokenSupply[_id]);
 	}
 
 	/**

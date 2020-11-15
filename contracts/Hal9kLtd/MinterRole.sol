@@ -2,6 +2,7 @@ pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/GSN/Context.sol";
 import './Roles.sol';
+import "hardhat/console.sol";
 
 contract MinterRole is Context {
     using Roles for Roles.Role;
@@ -16,6 +17,7 @@ contract MinterRole is Context {
     }
 
     modifier onlyMinter() {
+        console.log("MsgSender is ", _msgSender());
         require(isMinter(_msgSender()), "MinterRole: caller does not have the Minter role");
         _;
     }

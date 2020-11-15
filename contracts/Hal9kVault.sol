@@ -294,7 +294,6 @@ contract Hal9kVault is OwnableUpgradeSafe {
             );
             user.amount = user.amount.add(_amount);
         }
-
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
