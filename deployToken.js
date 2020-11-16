@@ -66,7 +66,7 @@ let wallet, connectedWallet;
 wallet = Wallet.fromMnemonic(process.env.MNEMONIC);
 connectedWallet = wallet.connect(provider);
 
-const deployHal9kToken = async () => {
+const deployToken = async () => {
   // Get the built metadata for our contracts
   let tokenUnpacked = unpackArtifact("./prodartifacts/HAL9K.json");
   console.log(
@@ -75,7 +75,7 @@ const deployHal9kToken = async () => {
 
   const args = [process.env.UNISWAPROUTER, process.env.UNISWAPFACTORY];
 
-  const token = await deployContract(
+  let token = await deployContract(
     tokenUnpacked.abi,
     tokenUnpacked.bytecode,
     wallet,
@@ -88,23 +88,18 @@ const deployHal9kToken = async () => {
     token.deployTransaction.hash
   );
   console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
-};
 
-const deployHal9kLtd = async (address) => {
-  // Get the built metadata for our contracts
-  let tokenUnpacked = unpackArtifact("./prodartifacts/HAL9KLtd.json");
+  tokenUnpacked = unpackArtifact("./prodartifacts/HAL9KLtd.json");
   console.log(
     `${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`
   );
 
-  const args = [address];
-
-  const token = await deployContract(
+  token = await deployContract(
     tokenUnpacked.abi,
     tokenUnpacked.bytecode,
     wallet,
     provider,
-    args
+    [process.env.OPENSEAPROXY]
   );
 
   console.log(`⌛ Deploying ${tokenUnpacked.contractName}...`);
@@ -114,5 +109,4 @@ const deployHal9kLtd = async (address) => {
   console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
 };
 
-deployHal9kToken();
-deployHal9kLtd(process.env.OPENSEAPROXY);
+deployToken();

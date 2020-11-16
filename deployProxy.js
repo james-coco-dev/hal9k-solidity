@@ -156,16 +156,14 @@ const initFeeApprover = async () => {
       `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`
     );
 
-    let setFeeDistributorResult = await token.setFeeDistributor(wallet.address);
+    let setFeeDistributorResult = await token.setFeeDistributor(devAddr);
     console.log(`⌛ setFeeDistributor...`);
     await connectedWallet.provider.waitForTransaction(
       setFeeDistributorResult.hash
     );
     console.log(
-      `✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`
+      `✅ Called setFeeDistributor(${devAddr} on token at ${token.address})`
     );
-
-    console.log("All done!");
   } catch (err) {
     console.log("initFeeApprover ===>", err);
   }
@@ -197,24 +195,25 @@ const initHal9kNftPool = async () => {
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
 //kovan testnet addresses
-const hal9kTokenAddress = "0x3A9fFd547d7aE5189A13414A51e789Ccae6b8266";
-const deployedProxyAdminAddress = "0x6CDDb18496A27905D00501cD5292981c8c04715D"; // No change after deploy
+const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
+const deployedProxyAdminAddress = "0x77342A9E688a6De9093420C91dA79606803CD2a2"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0xF442e39a9E5379106a83C00E97f6E7AA98D0070c";
-const deployedHal9kVaultProxy = "0x1846F064C668Fd748FA552da4060434f9ae90521"; // No change after deploy
+const deployedHal9kVaultAddress = "0xa42039F905fEA19F7Ce086642AC80F5C04eeF6ad";
+const deployedHal9kVaultProxy = "0x0f8f79A039C837262a113dB6e7c1fF800572d14D"; // No change after deploy
 
 const hal9kVaultInited = true;
 
-const deployedFeeApproverAddress = "0x27eb56DED3584827B1bA428BC73F9185E2E16855";
-const deployedFeeApproverProxy = "0x136b01DD3B5A0ffb42195e769F532540abDEABD7"; // No change after deploy
+const deployedFeeApproverAddress = "0xE8B925F1f2D23cd36136f4cb878370646B020042";
+const deployedFeeApproverProxy = "0x4e31e3159aE3A3cAA16592d5CBF03e3D1F410DB5"; // No change after deploy
 
 const feeApproverInited = true;
 
-const deployedHal9kLtdAddress = "";
-const deployedHal9kNFTPoolAddress = "";
-const deployedHal9kNFTPoolProxy = "";
+const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
+const deployedHal9kNFTPoolAddress =
+  "0xC9605f17AEf5a4f2700421396050D848D87Eb98b";
+const deployedHal9kNFTPoolProxy = "0x752351A44eeC7fE245959350C3aA6575d87D4839";
 
-const hal9kNFTPoolInited = false;
+const hal9kNFTPoolInited = true;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
