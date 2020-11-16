@@ -49,9 +49,12 @@ let provider, wethAddress;
 if (process.env.NETWORK == "mainnet") {
   provider = ethers.getDefaultProvider("homestead");
   wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-} else {
+} else if (process.env.NETWORK == "kovan") {
   provider = ethers.getDefaultProvider("kovan");
   wethAddress = "0xd0a1e359811322d97991e03f863a0c30c2cf029c";
+} else if (process.env.NETWORK == "rinkeby") {
+  provider = ethers.getDefaultProvider("rinkeby");
+  wethAddress = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
 }
 
 let wallet, connectedWallet;
@@ -196,22 +199,22 @@ const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
 //kovan testnet addresses
 const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
-const deployedProxyAdminAddress = "0x77342A9E688a6De9093420C91dA79606803CD2a2"; // No change after deploy
+const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0xa42039F905fEA19F7Ce086642AC80F5C04eeF6ad";
-const deployedHal9kVaultProxy = "0x0f8f79A039C837262a113dB6e7c1fF800572d14D"; // No change after deploy
+const deployedHal9kVaultAddress = "0x79c31f05AF7898F91058f4A619f112221805222D";
+const deployedHal9kVaultProxy = "0x95875951e653E0f37dA1d1e6E596ba4011192A78"; // No change after deploy
 
 const hal9kVaultInited = true;
 
-const deployedFeeApproverAddress = "0xE8B925F1f2D23cd36136f4cb878370646B020042";
-const deployedFeeApproverProxy = "0x4e31e3159aE3A3cAA16592d5CBF03e3D1F410DB5"; // No change after deploy
+const deployedFeeApproverAddress = "0x40d268b5916EbA91B9CF3907b68379752e0346E3";
+const deployedFeeApproverProxy = "0xBd78FAB43462837157E066b87808F79Cee122EC3"; // No change after deploy
 
 const feeApproverInited = true;
 
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
 const deployedHal9kNFTPoolAddress =
-  "0xC9605f17AEf5a4f2700421396050D848D87Eb98b";
-const deployedHal9kNFTPoolProxy = "0x752351A44eeC7fE245959350C3aA6575d87D4839";
+  "0x0042f940a3a4d2b4cEcdD9dC80D17ef69f6e529C";
+const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
 
 const hal9kNFTPoolInited = true;
 
