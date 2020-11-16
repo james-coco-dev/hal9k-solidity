@@ -111,6 +111,12 @@ const deployHal9kLtd = async (address) => {
   console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
 };
 
-const openseaProxyAddress = "";
+let openseaProxyAddress;
+if (process.env.NETWORK == "mainnet") {
+  openseaProxyAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
+} else if (process.env.NETWORK = "testnet") {
+  openseaProxyAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
+}
+
 deployHal9kToken();
 deployHal9kLtd(openseaProxyAddress);
