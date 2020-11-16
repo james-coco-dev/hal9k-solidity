@@ -432,8 +432,6 @@ interface IFeeApprover {
 
     function setTokenUniswapPair(address _tokenUniswapPair) external;
 
-    function setHal9kTokenAddress(address _hal9kTokenAddress) external;
-
     function setHal9kVaultAddress(address _hal9kVaultAddress) external;
 
     function sync() external;
@@ -455,13 +453,18 @@ interface IHal9kVault {
     function addPendingRewards(uint256 _amount) external;
 
     function depositFor(
-        address depositFor,
+        address _depositFor,
         uint256 _pid,
         uint256 _amount
     ) external;
+
+    function getUserInfo(
+        uint256 _pid,
+        address _userAddress
+    ) external returns (uint256 stakedAmount);
 }
 
-// File: @nomiclabs/buidler/console.sol
+// File: hardhat/console.sol
 
 pragma solidity >= 0.4.22 <0.8.0;
 
@@ -2422,6 +2425,7 @@ pragma solidity ^0.6.0;
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
+
 contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
@@ -2449,11 +2453,10 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
     }
 
     function initialSetup(address router, address factory) internal {
-        _name = "HAL9000";
-        _symbol = "HAL9K";
+        _name = "HAL9K";
+        _symbol = "HAL9000";
         _decimals = 18;
         _mint(address(this), initialSupply);
-        contractStartTimestamp = block.timestamp;
         uniswapRouterV2 = IUniswapV2Router02(
             router != address(0)
                 ? router
@@ -2465,6 +2468,12 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
                 : 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f
         ); // For testing
         createUniswapPairMainnet();
+    }
+
+    /**
+     */
+    function startLiquidityGenerationEventForHAL9K() public onlyOwner {
+        contractStartTimestamp = block.timestamp;
     }
 
     /**
@@ -2555,6 +2564,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
     }
 
     function liquidityGenerationOngoing() public view returns (bool) {
+        require(contractStartTimestamp > 0, "LGE not started");
         console.log(
             "7 days since start is",
             contractStartTimestamp.add(7 days),

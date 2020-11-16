@@ -54,9 +54,12 @@ let provider;
 if (process.env.NETWORK == "mainnet") {
   provider = ethers.getDefaultProvider("homestead");
   wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-} else {
+} else if (process.env.NETWORK == "kovan") {
   provider = ethers.getDefaultProvider("kovan");
   wethAddress = "0xd0a1e359811322d97991e03f863a0c30c2cf029c";
+} else if (process.env.NETWORK == "rinkeby") {
+  provider = ethers.getDefaultProvider("rinkeby");
+  wethAddress = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
 }
 
 let wallet, connectedWallet;
@@ -111,6 +114,5 @@ const deployHal9kLtd = async (address) => {
   console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
 };
 
-const openseaProxyAddress = "";
 deployHal9kToken();
-deployHal9kLtd(openseaProxyAddress);
+deployHal9kLtd(process.env.OPENSEAPROXY);
