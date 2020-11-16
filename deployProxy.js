@@ -193,6 +193,7 @@ const initHal9kNftPool = async () => {
     console.log("initHal9kNftPool ====>", error);
   }
 };
+
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
 //kovan testnet addresses
@@ -297,9 +298,9 @@ if (!deployedHal9kNFTPoolProxy) {
   ]);
   return;
 }
+
 //Step 10
 //Initialize the hal9knftpool
-
 if (!hal9kNFTPoolInited) {
   initHal9kNftPool();
 }
