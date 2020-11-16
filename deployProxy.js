@@ -197,7 +197,7 @@ const initHal9kNftPool = async () => {
 
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
-//kovan testnet addresses
+//rinkby testnet addresses
 const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
 const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
