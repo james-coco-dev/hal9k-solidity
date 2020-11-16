@@ -9,8 +9,6 @@
     "deploy:token": "node deployToken.js",
     "deploy:proxy": "node deployProxy.js",
     "verify:kovan": "truffle run verify --network kovan",
-    "flatten:hal9kltd": "truffle-flattener contracts/Hal9kLtd/HAL9KLtd.sol > contracts/Hal9kLtd/FlattenedHAL9KLtd.sol",
-    "flatten:hal9kpool": "truffle-flattener contracts/Hal9kLtd/HAL9KNFTPool.sol > contracts/Hal9kLtd/FlattenedHAL9KNFTPool.sol",
     "test": "npx hardhat test"
   },
   "dependencies": {
