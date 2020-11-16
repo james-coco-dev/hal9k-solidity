@@ -6,10 +6,10 @@ require("dotenv").config();
 const proxyAdminArtifact = "./prodartifacts/ProxyAdmin.json";
 const hal9kVaultArtifact = "./prodartifacts/Hal9kVault.json";
 const hal9kArtifact = "./prodartifacts/HAL9K.json";
-const adminUpgradeabilityProxyArtifact = "./prodartifacts/AdminUpgradeabilityProxy.json";
+const adminUpgradeabilityProxyArtifact =
+  "./prodartifacts/AdminUpgradeabilityProxy.json";
 const feeApproverArtifact = "./prodartifacts/FeeApprover.json";
 
-const hal9kLtdArtifact = "./prodartifacts/HAL9KLtd.json";
 const hal9kNFTPoolArtifact = "./prodartifacts/HAL9KNFTPool.json";
 
 const unpackArtifact = (artifactPath) => {
@@ -75,13 +75,22 @@ const deploy = async (artifactPath, args) => {
   try {
     let tokenUnpacked = unpackArtifact(artifactPath);
 
-    console.log(`${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`);
-    const token = await deployContract(tokenUnpacked.abi, tokenUnpacked.bytecode, args);
+    console.log(
+      `${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`
+    );
+    const token = await deployContract(
+      tokenUnpacked.abi,
+      tokenUnpacked.bytecode,
+      args
+    );
     console.log(`⌛ Deploying ${tokenUnpacked.contractName}...`);
 
-    await connectedWallet.provider.waitForTransaction(token.deployTransaction.hash);
-    console.log(`✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`);
-    
+    await connectedWallet.provider.waitForTransaction(
+      token.deployTransaction.hash
+    );
+    console.log(
+      `✅ Deployed ${tokenUnpacked.contractName} to ${token.address}`
+    );
   } catch (err) {
     console.log("deploy ======>", err);
   }
@@ -124,7 +133,9 @@ const initFeeApprover = async () => {
 
     console.log(`⌛ Initialize FeeApprover...`);
     await connectedWallet.provider.waitForTransaction(initTxn.hash);
-    console.log(`✅ Initialized FeeApprover on token at ${feeApprover.address}`);
+    console.log(
+      `✅ Initialized FeeApprover on token at ${feeApprover.address}`
+    );
 
     let hal9kTokenUnpacked = unpackArtifact(hal9kArtifact);
     let token = new Contract(
@@ -133,16 +144,26 @@ const initFeeApprover = async () => {
       connectedWallet
     );
 
-    let setTransferCheckerResult = await token.setShouldTransferChecker(feeApprover.address);
+    let setTransferCheckerResult = await token.setShouldTransferChecker(
+      feeApprover.address
+    );
 
     console.log(`⌛ setShouldTransferChecker...`);
-    await connectedWallet.provider.waitForTransaction(setTransferCheckerResult.hash);
-    console.log(`✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`);
+    await connectedWallet.provider.waitForTransaction(
+      setTransferCheckerResult.hash
+    );
+    console.log(
+      `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`
+    );
 
     let setFeeDistributorResult = await token.setFeeDistributor(wallet.address);
     console.log(`⌛ setFeeDistributor...`);
-    await connectedWallet.provider.waitForTransaction(setFeeDistributorResult.hash);
-    console.log(`✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`);
+    await connectedWallet.provider.waitForTransaction(
+      setFeeDistributorResult.hash
+    );
+    console.log(
+      `✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`
+    );
 
     console.log("All done!");
   } catch (err) {
@@ -150,6 +171,28 @@ const initFeeApprover = async () => {
   }
 };
 
+const initHal9kNftPool = async () => {
+  try {
+    let tokenUnpacked = unpackArtifact(hal9kNFTPoolArtifact);
+    let hal9knftpool = new Contract(
+      deployedHal9kNFTPoolProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    let initTxn = await hal9knftpool.initialize(
+      deployedHal9kLtdAddress,
+      deployedHal9kVaultProxy,
+      devAddr
+    );
+    console.log(`⌛ Initialize Hal9kNftPool...`);
+    await connectedWallet.provider.waitForTransaction(initTxn.hash);
+    console.log(
+      `✅ Initialized Hal9kNftPool on token at ${hal9knftpool.address}`
+    );
+  } catch (error) {
+    console.log("initHal9kNftPool ====>", error);
+  }
+};
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
 //kovan testnet addresses
@@ -167,7 +210,10 @@ const deployedFeeApproverProxy = "0x136b01DD3B5A0ffb42195e769F532540abDEABD7"; /
 const feeApproverInited = true;
 
 const deployedHal9kLtdAddress = "";
-const deployedHal9kNFTPool = "";
+const deployedHal9kNFTPoolAddress = "";
+const deployedHal9kNFTPoolProxy = "";
+
+const hal9kNFTPoolInited = false;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
@@ -234,17 +280,26 @@ if (!feeApproverInited) {
 }
 
 // Step 8
-// Deploy Hal9kLtd
-// Shoud add opensea _proxyRegistryAddress to the args when deploying. This is only available in rinkby and mainnet
-if (!deployedHal9kLtdAddress) {
-  deploy(hal9kLtdArtifact, []);
+// Deploy Hal9kNFTPool
+
+if (!deployedHal9kNFTPoolAddress) {
+  deploy(hal9kNFTPoolArtifact);
   return;
 }
 
-// Step 9
-// Deploy Hal9kNFTPool
-
-if (!deployedHal9kNFTPool) {
-  deploy(hal9kNFTPoolArtifact, [deployedHal9kLtdAddress, deployedHal9kVaultAddress]);
+//Step 9
+//Deploy hal9knft proxy
+if (!deployedHal9kNFTPoolProxy) {
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedHal9kNFTPoolAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
   return;
+}
+//Step 10
+//Initialize the hal9knftpool
+
+if (!hal9kNFTPoolInited) {
+  initHal9kNftPool();
 }

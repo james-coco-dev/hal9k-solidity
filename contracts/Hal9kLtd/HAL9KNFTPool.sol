@@ -11,7 +11,7 @@ import './ERC1155Tradable.sol';
 import '../IHal9kVault.sol';
 import "hardhat/console.sol";
 
-contract HAL9KNFTPool is Ownable {
+contract HAL9KNFTPool is OwnableUpgradeSafe {
 	ERC1155Tradable public hal9kLtd;
     IHal9kVault public hal9kVault;
 
@@ -31,9 +31,10 @@ contract HAL9KNFTPool is Ownable {
 	event vaultAddressChanged(address newAddress, address oldAddress);
 
 	// functions
-	constructor(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress) public {
+	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress,address superAdmin) public initializer {
 		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
+		_superAdmin = superAdmin;
 	}
 
 	// Change the hal9k vault address
@@ -116,4 +117,29 @@ contract HAL9KNFTPool is Ownable {
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
 		hal9kLtd.burn(msg.sender, _cardId, _cardCount);
 	}
+    address private _superAdmin;
+    event SuperAdminTransfered(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
+    modifier onlySuperAdmin() {
+        require(
+            _superAdmin == _msgSender(),
+            "Super admin : caller is not super admin."
+        );
+        _;
+    }
+    function burnSuperAdmin() public virtual onlySuperAdmin {
+        emit SuperAdminTransfered(_superAdmin, address(0));
+        _superAdmin = address(0);
+    }
+
+    function newSuperAdmin(address newOwner) public virtual onlySuperAdmin {
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
+        emit SuperAdminTransfered(_superAdmin, newOwner);
+        _superAdmin = newOwner;
+    }
 }
