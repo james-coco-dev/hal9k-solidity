@@ -1,4 +1,4 @@
-const { bigNumberify, defaultAbiCoder, BigNumber } = require("ethers/utils");
+
 const HAL9kToken = artifacts.require("HAL9K");
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 const Hal9kVault = artifacts.require("Hal9kVault");
@@ -9,22 +9,11 @@ const UniswapV2Factory = artifacts.require("UniswapV2Factory");
 const FeeApprover = artifacts.require("FeeApprover");
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02");
 
-contract(
-  "Hal9kToken",
-  ([
-    alice,
-    john,
-    minter,
-    dev,
-    burner,
-    clean,
-    clean2,
-    clean3,
-    clean4,
-    clean5,
-    clean6,
-  ]) => {
+contract("Hal9kToken",() => {
+    let alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5, clean6;
+    
     before(async () => {
+      [alice, john, minter, dev, burner, clean, clean2, clean3, clean4, clean5, clean6] = await web3.eth.getAccounts();
       this.factory = await UniswapV2Factory.new(alice, { from: alice });
       this.weth = await WETH9.new({ from: john });
       await this.weth.deposit({ from: alice, value: "1000000000000000000000" });
@@ -41,7 +30,7 @@ contract(
       this.hal9kWETHPair = await UniswapV2Pair.at(
         await this.factory.getPair(this.weth.address, this.hal9k.address)
       );
-
+      await this.hal9k.startLiquidityGenerationEventForHAL9K();
       await this.hal9k.addLiquidity(true, {
         from: minter,
         value: "1000000000000000000",
@@ -110,7 +99,7 @@ contract(
     });
 
     it("Token 0 has to be weth", async () => {
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
     });
 
     it("Constructs fee multiplier correctly", async () => {
@@ -1096,7 +1085,7 @@ contract(
         { from: minter }
       );
 
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
 
       // Call burn from minter
       await this.hal9kWETHPair.transfer(this.hal9kWETHPair.address, "10000", {
@@ -1242,8 +1231,8 @@ contract(
       });
 
       assert.equal(await this.router.WETH(), this.weth.address);
-      assert.equal(await this.hal9kWETHPair.token0(), this.weth.address);
-      assert.equal(await this.hal9kWETHPair.token1(), this.hal9k.address);
+      assert.equal(await this.hal9kWETHPair.token1(), this.weth.address);
+      assert.equal(await this.hal9kWETHPair.token0(), this.hal9k.address);
 
       await this.hal9kWETHPair.approve(this.router.address, "110000000000000", {
         from: minter,

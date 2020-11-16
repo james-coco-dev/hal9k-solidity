@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./IFeeApprover.sol";
 import "./IHal9kVault.sol";
-import "@nomiclabs/buidler/console.sol";
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // for WETH
 import "./uniswapv2/interfaces/IUniswapV2Factory.sol"; // interface factorys
@@ -76,7 +76,6 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         _symbol = "HAL9000";
         _decimals = 18;
         _mint(address(this), initialSupply);
-        contractStartTimestamp = block.timestamp;
         uniswapRouterV2 = IUniswapV2Router02(
             router != address(0)
                 ? router
@@ -88,6 +87,12 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
                 : 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f
         ); // For testing
         createUniswapPairMainnet();
+    }
+
+    /**
+     */
+    function startLiquidityGenerationEventForHAL9K() public onlyOwner {
+        contractStartTimestamp = block.timestamp;
     }
 
     /**

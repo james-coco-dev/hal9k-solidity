@@ -1,13 +1,13 @@
 pragma solidity 0.6.12;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 import "./Strings.sol";
 import "./ERC1155.sol";
 import "./ERC1155MintBurn.sol";
 import "./ERC1155Metadata.sol";
 import "./MinterRole.sol";
 import "./WhitelistAdminRole.sol";
-
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract OwnableDelegateProxy {}
 
@@ -69,6 +69,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @return amount of token in existence
 	 */
 	function totalSupply(uint256 _id) public view returns (uint256) {
+		console.log("tokenSupply : ", tokenSupply[_id]);
 		return tokenSupply[_id];
 	}
 
@@ -104,11 +105,11 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		bytes calldata _data
 	) external onlyWhitelistAdmin returns (uint256 tokenId) {
 		require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
+
 		uint256 _id = _getNextTokenID();
 		_incrementTokenTypeId();
-		
-		creators[_id] = msg.sender;
 
+		creators[_id] = msg.sender;
 		if (bytes(_uri).length > 0) {
 			emit URI(_uri, _id);
 		}
@@ -117,6 +118,10 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		tokenSupply[_id] = _initialSupply;
 		tokenMaxSupply[_id] = _maxSupply;
 		return _id;
+	}
+
+	function getCurrentTokenID() public view returns (uint256) {
+		return _currentTokenID;
 	}
 
 	/**
@@ -133,9 +138,12 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 		bytes memory _data
 	) public onlyMinter {
 		uint256 tokenId = _id;
+		
+		console.log("Minting token ID : ", tokenId);
 		require(tokenSupply[tokenId] < tokenMaxSupply[tokenId], "Max supply reached");
 		_mint(_to, _id, _quantity, _data);
 		tokenSupply[_id] = tokenSupply[_id].add(_quantity);
+		console.log("Token Supply after minting", tokenSupply[_id]);
 	}
 
 	/**
@@ -189,6 +197,6 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable, 
 	 * @dev increments the value of _currentTokenID
 	 */
 	function _incrementTokenTypeId() private {
-		_currentTokenID++;
+		_currentTokenID ++;
 	}
 }

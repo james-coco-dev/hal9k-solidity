@@ -1,7 +1,5 @@
 const { ethers, Wallet, ContractFactory, Contract } = require("ethers");
-
 const fs = require("fs");
-
 require("dotenv").config();
 
 //----------artifact path-------------
@@ -11,6 +9,8 @@ const hal9kArtifact = "./prodartifacts/HAL9K.json";
 const adminUpgradeabilityProxyArtifact =
   "./prodartifacts/AdminUpgradeabilityProxy.json";
 const feeApproverArtifact = "./prodartifacts/FeeApprover.json";
+
+const hal9kNFTPoolArtifact = "./prodartifacts/HAL9KNFTPool.json";
 
 const unpackArtifact = (artifactPath) => {
   let contractData = JSON.parse(fs.readFileSync(artifactPath));
@@ -35,6 +35,7 @@ const unpackArtifact = (artifactPath) => {
       })
     );
   }
+
   return {
     abi: contractABI,
     bytecode: contractBytecode,
@@ -48,9 +49,12 @@ let provider, wethAddress;
 if (process.env.NETWORK == "mainnet") {
   provider = ethers.getDefaultProvider("homestead");
   wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-} else {
+} else if (process.env.NETWORK == "kovan") {
   provider = ethers.getDefaultProvider("kovan");
   wethAddress = "0xd0a1e359811322d97991e03f863a0c30c2cf029c";
+} else if (process.env.NETWORK == "rinkeby") {
+  provider = ethers.getDefaultProvider("rinkeby");
+  wethAddress = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
 }
 
 let wallet, connectedWallet;
@@ -66,23 +70,24 @@ const deployContract = async (contractABI, contractBytecode, args = []) => {
     );
     return await factory.deploy(...args);
   } catch (error) {
-    console.log("deployContract====>", error);
+    console.log("deployContract ====>", error);
   }
 };
 
 const deploy = async (artifactPath, args) => {
   try {
     let tokenUnpacked = unpackArtifact(artifactPath);
+
     console.log(
       `${tokenUnpacked.contractName} \n Constructor: ${tokenUnpacked.constructor}`
     );
-
     const token = await deployContract(
       tokenUnpacked.abi,
       tokenUnpacked.bytecode,
       args
     );
     console.log(`⌛ Deploying ${tokenUnpacked.contractName}...`);
+
     await connectedWallet.provider.waitForTransaction(
       token.deployTransaction.hash
     );
@@ -128,6 +133,7 @@ const initFeeApprover = async () => {
       wethAddress,
       process.env.UNISWAPFACTORY
     );
+
     console.log(`⌛ Initialize FeeApprover...`);
     await connectedWallet.provider.waitForTransaction(initTxn.hash);
     console.log(
@@ -140,9 +146,11 @@ const initFeeApprover = async () => {
       hal9kTokenUnpacked.abi,
       connectedWallet
     );
+
     let setTransferCheckerResult = await token.setShouldTransferChecker(
       feeApprover.address
     );
+
     console.log(`⌛ setShouldTransferChecker...`);
     await connectedWallet.provider.waitForTransaction(
       setTransferCheckerResult.hash
@@ -151,35 +159,64 @@ const initFeeApprover = async () => {
       `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`
     );
 
-    let setFeeDistributorResult = await token.setFeeDistributor(wallet.address);
+    let setFeeDistributorResult = await token.setFeeDistributor(devAddr);
     console.log(`⌛ setFeeDistributor...`);
     await connectedWallet.provider.waitForTransaction(
       setFeeDistributorResult.hash
     );
     console.log(
-      `✅ Called setFeeDistributor(${wallet.address} on token at ${token.address})`
+      `✅ Called setFeeDistributor(${devAddr} on token at ${token.address})`
     );
-
-    console.log("All done!");
   } catch (err) {
     console.log("initFeeApprover ===>", err);
   }
 };
+
+const initHal9kNftPool = async () => {
+  try {
+    let tokenUnpacked = unpackArtifact(hal9kNFTPoolArtifact);
+    let hal9knftpool = new Contract(
+      deployedHal9kNFTPoolProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    let initTxn = await hal9knftpool.initialize(
+      deployedHal9kLtdAddress,
+      deployedHal9kVaultProxy,
+      devAddr
+    );
+    console.log(`⌛ Initialize Hal9kNftPool...`);
+    await connectedWallet.provider.waitForTransaction(initTxn.hash);
+    console.log(
+      `✅ Initialized Hal9kNftPool on token at ${hal9knftpool.address}`
+    );
+  } catch (error) {
+    console.log("initHal9kNftPool ====>", error);
+  }
+};
+
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 
-//kovan testnet addresses
-const hal9kTokenAddress = "0x3A9fFd547d7aE5189A13414A51e789Ccae6b8266";
-const deployedProxyAdminAddress = "0x6CDDb18496A27905D00501cD5292981c8c04715D"; // No change after deploy
+//rinkby testnet addresses
+const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
+const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0xF442e39a9E5379106a83C00E97f6E7AA98D0070c";
-const deployedHal9kVaultProxy = "0x1846F064C668Fd748FA552da4060434f9ae90521"; // No change after deploy
+const deployedHal9kVaultAddress = "0x79c31f05AF7898F91058f4A619f112221805222D";
+const deployedHal9kVaultProxy = "0x95875951e653E0f37dA1d1e6E596ba4011192A78"; // No change after deploy
 
 const hal9kVaultInited = true;
 
-const deployedFeeApproverAddress = "0x27eb56DED3584827B1bA428BC73F9185E2E16855";
-const deployedFeeApproverProxy = "0x136b01DD3B5A0ffb42195e769F532540abDEABD7"; // No change after deploy
+const deployedFeeApproverAddress = "0x40d268b5916EbA91B9CF3907b68379752e0346E3";
+const deployedFeeApproverProxy = "0xBd78FAB43462837157E066b87808F79Cee122EC3"; // No change after deploy
 
-const feeApproverInited = false;
+const feeApproverInited = true;
+
+const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
+const deployedHal9kNFTPoolAddress =
+  "0x0042f940a3a4d2b4cEcdD9dC80D17ef69f6e529C";
+const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
+
+const hal9kNFTPoolInited = true;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
@@ -243,4 +280,29 @@ if (!deployedFeeApproverProxy) {
 if (!feeApproverInited) {
   initFeeApprover();
   return;
+}
+
+// Step 8
+// Deploy Hal9kNFTPool
+
+if (!deployedHal9kNFTPoolAddress) {
+  deploy(hal9kNFTPoolArtifact);
+  return;
+}
+
+//Step 9
+//Deploy hal9knft proxy
+if (!deployedHal9kNFTPoolProxy) {
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedHal9kNFTPoolAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
+  return;
+}
+
+//Step 10
+//Initialize the hal9knftpool
+if (!hal9kNFTPoolInited) {
+  initHal9kNftPool();
 }

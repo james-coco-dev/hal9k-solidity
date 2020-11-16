@@ -6,7 +6,7 @@ import './libraries/UQ112x112.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IUniswapV2Factory.sol';
 import './interfaces/IUniswapV2Callee.sol';
-import "@nomiclabs/buidler/console.sol";
+import "hardhat/console.sol";
 
 
 interface IMigrator {

@@ -416,7 +416,7 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// File: @nomiclabs/buidler/console.sol
+// File: hardhat/console.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.4.22 <0.8.0;
@@ -1988,6 +1988,8 @@ pragma solidity ^0.6.0;
 
 contract FeeApprover is OwnableUpgradeSafe {
     using SafeMath for uint256;
+    
+    // In this contract, e do calculate fee and the real amount to be sent to the recepient
 
     function initialize(
         address _Hal9kAddress,
@@ -2022,11 +2024,7 @@ contract FeeApprover is OwnableUpgradeSafe {
     function setFeeMultiplier(uint8 _feeMultiplier) public onlyOwner {
         feePercentX100 = _feeMultiplier;
     }
-
-    function setHal9kTokenAddress(address _hal9kTokenAddress) public onlyOwner {
-        hal9kTokenAddress = _hal9kTokenAddress;
-    }
-
+    
     function setHal9kVaultAddress(address _hal9kVaultAddress) public onlyOwner {
         hal9kVaultAddress = _hal9kVaultAddress;
     }

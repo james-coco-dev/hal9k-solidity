@@ -23,6 +23,10 @@ echo 'flattening Hal9kVault...'
 npx truffle-flattener contracts/Hal9kVault.sol | awk '/SPDX-License-Identifier/&&c++>0 {next} 1' | awk '/pragma experimental ABIEncoderV2;/&&c++>0 {next} 1' >> oz/contracts/Hal9kVault.sol
 echo 'flattening FeeApprover...'
 npx truffle-flattener contracts/FeeApprover.sol | awk '/SPDX-License-Identifier/&&c++>0 {next} 1' | awk '/pragma experimental ABIEncoderV2;/&&c++>0 {next} 1' >> oz/contracts/FeeApprover.sol
+echo 'flattening Hal9kNFTPool...'
+npx truffle-flattener contracts/Hal9kLtd/HAL9KNFTPool.sol | awk '/SPDX-License-Identifier/&&c++>0 {next} 1' | awk '/pragma experimental ABIEncoderV2;/&&c++>0 {next} 1' >> oz/contracts/HAL9KNFTPool.sol
+echo 'flattening Hal9kLtd...'
+npx truffle-flattener contracts/Hal9kLtd/HAL9KLtd.sol | awk '/SPDX-License-Identifier/&&c++>0 {next} 1' | awk '/pragma experimental ABIEncoderV2;/&&c++>0 {next} 1' >> oz/contracts/HAL9KLtd.sol
 echo 'Removing contracts without logs...'
 rm -rf contracts
 echo 'Putting original contracts back...'
@@ -34,4 +38,6 @@ echo "Copying artifacts to Prodartifacts"
 cp -rf build/contracts/HAL9K.json ../prodartifacts/HAL9K.json
 cp -rf build/contracts/Hal9kVault.json ../prodartifacts/Hal9kVault.json
 cp -rf build/contracts/FeeApprover.json ../prodartifacts/FeeApprover.json
+cp -rf build/contracts/HAL9KLtd.json ../prodartifacts/HAL9KLtd.json
+cp -rf build/contracts/HAL9KNFTPool.json ../prodartifacts/HAL9KNFTPool.json
 echo 'done!'

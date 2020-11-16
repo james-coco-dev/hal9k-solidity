@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.s
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 import "./INBUNIERC20.sol";
-import "@nomiclabs/buidler/console.sol";
+import "hardhat/console.sol";
 
 // HAL9K Vault distributes fees equally amongst staked pools
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -294,7 +294,6 @@ contract Hal9kVault is OwnableUpgradeSafe {
             );
             user.amount = user.amount.add(_amount);
         }
-
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }

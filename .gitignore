@@ -13,3 +13,5 @@ Proxy/node_modules
 .openzeppelin/.session
 .env
 package-lock.json
+.env.production
+.env.development
