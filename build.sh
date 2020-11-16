@@ -36,6 +36,5 @@ echo "Copying artifacts to Prodartifacts"
 cp -rf build/contracts/HAL9K.json ../prodartifacts/HAL9K.json
 cp -rf build/contracts/Hal9kVault.json ../prodartifacts/Hal9kVault.json
 cp -rf build/contracts/FeeApprover.json ../prodartifacts/FeeApprover.json
-cp -rf build/contracts/HAL9KLtd.json ../prodartifacts/HAL9KLtd.json
 cp -rf build/contracts/HAL9KNFTPool.json ../prodartifacts/HAL9KNFTPool.json
 echo 'done!'
