@@ -175,26 +175,26 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         require(liquidityGenerationOngoing(), "Event over");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(7 days),
+            contractStartTimestamp.add(1 hours),
             "Time now is",
             block.timestamp
         );
-        return contractStartTimestamp.add(7 days).sub(block.timestamp);
+        return contractStartTimestamp.add(1 hours).sub(block.timestamp);
     }
 
     function liquidityGenerationOngoing() public view returns (bool) {
         require(contractStartTimestamp > 0, "LGE not started");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(7 days),
+            contractStartTimestamp.add(1 hours),
             "Time now is",
             block.timestamp
         );
         console.log(
             "liquidity generation ongoing",
-            contractStartTimestamp.add(7 days) < block.timestamp
+            contractStartTimestamp.add(1 hours) < block.timestamp
         );
-        return contractStartTimestamp.add(7 days) > block.timestamp;
+        return contractStartTimestamp.add(1 hours) > block.timestamp;
     }
 
     // Emergency drain in case of a bug

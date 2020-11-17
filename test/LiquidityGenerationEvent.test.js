@@ -340,7 +340,7 @@ describe("Liquidity Generation tests", () => {
         from: clean4,
         value: "500000000000000000",
       });
-      await time.increase(60 * 60 * 24 * 7 + 1); // 7 days
+      await time.increase(60 * 60 + 1); // 7 days
       await expectRevert(
         this.hal9k.emergencyDrain24hAfterLiquidityGenerationEventIsDone({
           from: alice,
