@@ -8,7 +8,8 @@
     "build": "sh build.sh",
     "deploy:token": "node deployToken.js",
     "deploy:proxy": "node deployProxy.js",
-    "verify": "sh verify.sh",
+    "verify:token": "sh verify.sh",
+    "verify:proxy": "sh verifyProxy.sh",
     "test": "npx hardhat test"
   },
   "dependencies": {

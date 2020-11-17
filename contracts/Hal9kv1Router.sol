@@ -2,9 +2,10 @@ pragma solidity 0.6.12;
 
 import "./IFeeApprover.sol";
 import "./IHal9kVault.sol";
-import "./IWETH9.sol";
+import "./uniswapv2/interfaces/IWETH.sol";
 import "./uniswapv2/libraries/UniswapV2Library.sol";
 import "./uniswapv2/libraries/Math.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
@@ -25,7 +26,6 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
         address hal9kToken,
         address WETH,
         address uniV2Factory,
-        address hal9kWETHPair,
         address feeApprover,
         address hal9kVault
     ) public initializer {
@@ -34,7 +34,10 @@ contract Hal9kv1Router is OwnableUpgradeSafe {
         _WETH = IWETH(WETH);
         _uniV2Factory = uniV2Factory;
         _feeApprover = IFeeApprover(feeApprover);
-        _hal9kWETHPair = hal9kWETHPair;
+        _hal9kWETHPair = IUniswapV2Factory(_uniV2Factory).getPair(
+            WETH,
+            _hal9kToken
+        );
         _hal9kVault = IHal9kVault(hal9kVault);
         refreshApproval();
     }

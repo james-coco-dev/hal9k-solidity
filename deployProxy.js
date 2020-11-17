@@ -9,9 +9,8 @@ const hal9kArtifact = "./prodartifacts/HAL9K.json";
 const adminUpgradeabilityProxyArtifact =
   "./prodartifacts/AdminUpgradeabilityProxy.json";
 const feeApproverArtifact = "./prodartifacts/FeeApprover.json";
-
+const hal9kv1RouterArtifact = "./prodartifacts/Hal9kv1Router.json";
 const hal9kNFTPoolArtifact = "./prodartifacts/HAL9KNFTPool.json";
-
 const unpackArtifact = (artifactPath) => {
   let contractData = JSON.parse(fs.readFileSync(artifactPath));
   const contractBytecode = contractData["bytecode"];
@@ -195,8 +194,31 @@ const initHal9kNftPool = async () => {
   }
 };
 
+const initV1Router = async () => {
+  try {
+    let tokenUnpacked = unpackArtifact(hal9kv1RouterArtifact);
+    let hal9kV1Router = new Contract(
+      deployedRouterProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    let initTxn = await hal9kV1Router.initialize(
+      hal9kTokenAddress,
+      wethAddress,
+      process.env.UNISWAPFACTORY,
+      deployedFeeApproverProxy,
+      deployedHal9kVaultProxy
+    );
+    console.log(`⌛ Initialize Hal9kV1Router...`);
+    await connectedWallet.provider.waitForTransaction(initTxn.hash);
+    console.log(
+      `✅ Initialized Hal9kV1Router on token at ${hal9kV1Router.address}`
+    );
+  } catch (error) {
+    console.log("initHal9kV1Router ====>", error);
+  }
+};
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
-
 //rinkby testnet addresses
 const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
 const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
@@ -211,9 +233,14 @@ const deployedFeeApproverProxy = "0xBd78FAB43462837157E066b87808F79Cee122EC3"; /
 
 const feeApproverInited = true;
 
+const deployedRouterAddress = "0xe1F5d02796605ced3aB500D14Cb6C2D8930e9dBB";
+const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No change after deploy
+
+const routerInited = true;
+
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
 const deployedHal9kNFTPoolAddress =
-  "0x0042f940a3a4d2b4cEcdD9dC80D17ef69f6e529C";
+  "0x3536E583f7fA9395219A81580588b57dD6D0B13b";
 const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
 
 const hal9kNFTPoolInited = true;
@@ -281,8 +308,31 @@ if (!feeApproverInited) {
   initFeeApprover();
   return;
 }
+//step 8
+//deploy v1 router
+if (!deployedRouterAddress) {
+  deploy(hal9kv1RouterArtifact);
+  return;
+}
 
-// Step 8
+//step 9
+//deploy v1 router proxy
+if (!deployedRouterProxy) {
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedRouterAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
+  return;
+}
+
+//step 10
+//Init v1 router
+if (!routerInited) {
+  initV1Router();
+  return;
+}
+// Step 11
 // Deploy Hal9kNFTPool
 
 if (!deployedHal9kNFTPoolAddress) {
@@ -290,7 +340,7 @@ if (!deployedHal9kNFTPoolAddress) {
   return;
 }
 
-//Step 9
+//Step 12
 //Deploy hal9knft proxy
 if (!deployedHal9kNFTPoolProxy) {
   deploy(adminUpgradeabilityProxyArtifact, [
@@ -301,7 +351,7 @@ if (!deployedHal9kNFTPoolProxy) {
   return;
 }
 
-//Step 10
+//Step 13
 //Initialize the hal9knftpool
 if (!hal9kNFTPoolInited) {
   initHal9kNftPool();

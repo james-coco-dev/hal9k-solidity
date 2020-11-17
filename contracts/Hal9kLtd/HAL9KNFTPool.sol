@@ -32,6 +32,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 
 	// functions
 	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress,address superAdmin) public initializer {
+    OwnableUpgradeSafe.__Ownable_init();
 		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
 		_superAdmin = superAdmin;
