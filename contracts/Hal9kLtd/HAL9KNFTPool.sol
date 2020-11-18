@@ -48,6 +48,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
     }
 	
 	function startHal9KStaking() public {
+        require(lpUsers[msg.sender].claimed == false, "User has already claimed LP");
 		lpUsers[msg.sender].startTime = block.timestamp;
 		lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 		lpUsers[msg.sender].claimed = true;
@@ -57,18 +58,18 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	}
 
     function getDaysPassedAfterStakingStart() public view returns (uint256) {
-        require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+        require(lpUsers[msg.sender].claimed == true, "LP token hasn't claimed yet");
         return (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
     }
 
 	function getCurrentStage() public view returns(uint256 stage) {
-		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+		require(lpUsers[msg.sender].claimed == true, "LP token hasn't claimed yet");
 		return lpUsers[msg.sender].stage;
 	}
 
 	// backOrForth : back if true, forward if false
 	function moveStageBackOrForth(bool backOrForth) public { 
-		require(lpUsers[msg.sender].claimed != false, "LP token hasn't claimed yet");
+		require(lpUsers[msg.sender].claimed == true, "LP token hasn't claimed yet");
 		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastStageChangeTime) / 60 / 60 / 24;
 
 		console.log("Passed days: ", passedDays);
@@ -123,11 +124,12 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	}
 
     address private _superAdmin;
-	
+
     event SuperAdminTransfered(
         address indexed previousOwner,
         address indexed newOwner
     );
+
     modifier onlySuperAdmin() {
         require(
             _superAdmin == _msgSender(),
@@ -135,6 +137,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         );
         _;
     }
+	
     function burnSuperAdmin() public virtual onlySuperAdmin {
         emit SuperAdminTransfered(_superAdmin, address(0));
         _superAdmin = address(0);
