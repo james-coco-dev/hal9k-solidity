@@ -29,6 +29,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	// Events
 	event stageUpdated(address addr, uint256 stage);
 	event vaultAddressChanged(address newAddress, address oldAddress);
+	event startedHal9kStaking(address addr, uint256 startedTime);
 
 	// functions
 	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress,address superAdmin) public initializer {
@@ -51,6 +52,8 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		lpUsers[msg.sender].lastStageChangeTime = block.timestamp;
 		lpUsers[msg.sender].claimed = true;
 		lpUsers[msg.sender].stage = 0;
+
+		emit startedHal9kStaking(msg.sender, block.timestamp);
 	}
 
     function getDaysPassedAfterStakingStart() public view returns (uint256) {
@@ -118,7 +121,9 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		require(stakedAmount > 0 && stakedAmount == _stakedAmount, "Invalid user");
 		hal9kLtd.burn(msg.sender, _cardId, _cardCount);
 	}
+
     address private _superAdmin;
+	
     event SuperAdminTransfered(
         address indexed previousOwner,
         address indexed newOwner
