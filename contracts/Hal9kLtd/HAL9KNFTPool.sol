@@ -23,7 +23,6 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
     }
 
     mapping(address => UserInfo) private lpUsers;
-	address[] public lpUserAddress;
 
 	// Events
 	event stageUpdated(address addr, uint256 stage, uint256 lastUpdateTime);
@@ -35,17 +34,16 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 
 	// functions
 	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress,address superAdmin) public initializer {
-    OwnableUpgradeSafe.__Ownable_init();
+    	OwnableUpgradeSafe.__Ownable_init();
+		_superAdmin = superAdmin;
 		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
-		_superAdmin = superAdmin;
 	}
 
 	// Change the hal9k vault address
     function changeHal9kVaultAddress(address _hal9kVaultAddress) external onlyOwner {
         address oldAddress = address(hal9kVault);
         hal9kVault = IHal9kVault(_hal9kVaultAddress);
-
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
 	
