@@ -47,7 +47,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
 	
-	function startedHal9kStaking(uint256 stakeAmount) public {
+	function startHal9kStaking(uint256 stakeAmount) public {
         require(lpUsers[msg.sender].startTime == 0, "User has already started staking");
 		require(stakeAmount > 0, "Stake amount invalid");
 
