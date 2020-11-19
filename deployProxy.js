@@ -240,7 +240,7 @@ const routerInited = true;
 
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
 const deployedHal9kNFTPoolAddress =
-  "0x3536E583f7fA9395219A81580588b57dD6D0B13b";
+  "0x9b292822992F2df439826B8094ab00B70b646389";
 const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
 
 const hal9kNFTPoolInited = true;
