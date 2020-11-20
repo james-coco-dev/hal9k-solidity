@@ -62,6 +62,7 @@ connectedWallet = wallet.connect(provider);
 
 const deployContract = async (contractABI, contractBytecode, args = []) => {
   try {
+    console.log(connectedWallet);
     const factory = new ContractFactory(
       contractABI,
       contractBytecode,
@@ -239,8 +240,7 @@ const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No 
 const routerInited = true;
 
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
-const deployedHal9kNFTPoolAddress =
-  "0x9b292822992F2df439826B8094ab00B70b646389";
+const deployedHal9kNFTPoolAddress = "0x1f18fF3C23AeE9AFE332a0E314902e46e0b69CA9";
 const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
 
 const hal9kNFTPoolInited = true;
@@ -336,6 +336,7 @@ if (!routerInited) {
 // Deploy Hal9kNFTPool
 
 if (!deployedHal9kNFTPoolAddress) {
+  console.log("step 11");
   deploy(hal9kNFTPoolArtifact);
   return;
 }
