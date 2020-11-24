@@ -52,7 +52,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	}
 
 	function doHal9kStaking(address sender, uint256 stakeAmount) public {
-		require(hal9kVault == _msgSender(), "Caller is not Hal9kVault Contract");
+		require(hal9kVault == IHal9kVault(_msgSender()), "Caller is not Hal9kVault Contract");
 		require(stakeAmount > 0, "Stake amount invalid");
 		if (lpUsers[sender].startTime > 0) {
 			lpUsers[sender].stakeAmount += stakeAmount;
