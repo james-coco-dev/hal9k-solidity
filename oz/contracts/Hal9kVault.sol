@@ -882,6 +882,15 @@ interface INBUNIERC20 {
 
 }
 
+// File: contracts/IHAL9KNFTPool.sol
+
+pragma solidity ^0.6.0;
+
+interface IHAL9KNFTPool {
+   function isHal9kStakingStarted(address sender) external view returns(bool);
+   function doHal9kStaking(address sender, uint256 stakeAmount) external;
+}
+
 // File: hardhat/console.sol
 
 pragma solidity >= 0.4.22 <0.8.0;
@@ -2431,6 +2440,7 @@ pragma solidity 0.6.12;
 
 
 
+
 // HAL9K Vault distributes fees equally amongst staked pools
 // Have fun reading it. Hopefully it's bug-free. God bless.
 contract Hal9kVault is OwnableUpgradeSafe {
@@ -2486,6 +2496,20 @@ contract Hal9kVault is OwnableUpgradeSafe {
 
     function getUserInfo(uint256 _pid, address _userAddress) external view returns (uint256 stakedAmount) {
         return userInfo[_pid][_userAddress].amount;
+    }
+
+    event NftPoolChanged(
+        address indexed newAddress,
+        address indexed oldAddress
+    );
+
+    IHAL9KNFTPool public _hal9kNftPool;
+
+    function setNftPoolAddress(address hal9kNftPool) public onlyOwner {
+        address oldAddress = address(_hal9kNftPool);
+        _hal9kNftPool = IHAL9KNFTPool(hal9kNftPool);
+
+        emit NftPoolChanged(hal9kNftPool, oldAddress);
     }
 
     // Returns fees generated since start of this contract
@@ -2545,6 +2569,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
 
     function initialize(
         INBUNIERC20 _hal9k,
+        IHAL9KNFTPool hal9kNftPool,
         address _devaddr,
         address superAdmin
     ) public initializer {
@@ -2552,6 +2577,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         DEV_FEE = 724;
         hal9k = _hal9k;
         devaddr = _devaddr;
+        _hal9kNftPool = hal9kNftPool;
         contractStartBlock = block.number;
         _superAdmin = superAdmin;
     }
@@ -2718,6 +2744,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
             user.amount = user.amount.add(_amount);
         }
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
+        _hal9kNftPool.doHal9kStaking(msg.sender, _amount);
         emit Deposit(msg.sender, _pid, _amount);
     }
 

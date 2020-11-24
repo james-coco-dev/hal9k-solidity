@@ -27,7 +27,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	// Events
 	event stageUpdated(address addr, uint256 stage, uint256 lastUpdateTime);
 	event vaultAddressChanged(address newAddress, address oldAddress);
-	event startedHal9kStaking(address addr, uint256 startedTime);
+	event didHal9kStaking(address addr, uint256 startedTime);
 	event stakeAmountUpdated(address addr, uint256 newAmount);
 	event minted(address addr, uint256 cardId, uint256 mintAmount);
 	event burned(address addr, uint256 cardId, uint256 burnAmount);
@@ -46,17 +46,23 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         hal9kVault = IHal9kVault(_hal9kVaultAddress);
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
-	
-	function startHal9kStaking(uint256 stakeAmount) public {
-        require(lpUsers[msg.sender].startTime == 0, "User has already started staking");
+	function isHal9kStakingStarted(address sender) public view returns(bool started){
+		if (lpUsers[sender].startTime > 0) return true;
+		return false;
+	}
+
+	function doHal9kStaking(address sender, uint256 stakeAmount) public {
+		require(hal9kVault == _msgSender(), "Caller is not Hal9kVault Contract");
 		require(stakeAmount > 0, "Stake amount invalid");
-
-		lpUsers[msg.sender].startTime = block.timestamp;
-		lpUsers[msg.sender].lastUpdateTime = block.timestamp;
-		lpUsers[msg.sender].stakeAmount = stakeAmount;
-		lpUsers[msg.sender].stage = 0;
-
-		emit startedHal9kStaking(msg.sender, block.timestamp);
+		if (lpUsers[sender].startTime > 0) {
+			lpUsers[sender].stakeAmount += stakeAmount;
+		} else {
+			lpUsers[sender].startTime = block.timestamp;
+			lpUsers[sender].stakeAmount = stakeAmount;
+			lpUsers[sender].lastUpdateTime = block.timestamp;
+			lpUsers[sender].stage = 0;
+		}
+		emit didHal9kStaking(sender, block.timestamp);
 	}
 
     function getDaysPassedAfterStakingStart() public view returns (uint256) {

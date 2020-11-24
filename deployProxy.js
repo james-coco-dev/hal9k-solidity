@@ -62,7 +62,6 @@ connectedWallet = wallet.connect(provider);
 
 const deployContract = async (contractABI, contractBytecode, args = []) => {
   try {
-    console.log(connectedWallet);
     const factory = new ContractFactory(
       contractABI,
       contractBytecode,
@@ -224,7 +223,7 @@ const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
 const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0x79c31f05AF7898F91058f4A619f112221805222D";
+const deployedHal9kVaultAddress = "0x942eAb55208c9c0E66d75850291Fa96C370062FE";
 const deployedHal9kVaultProxy = "0x95875951e653E0f37dA1d1e6E596ba4011192A78"; // No change after deploy
 
 const hal9kVaultInited = true;
@@ -240,7 +239,8 @@ const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No 
 const routerInited = true;
 
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
-const deployedHal9kNFTPoolAddress = "0x1f18fF3C23AeE9AFE332a0E314902e46e0b69CA9";
+const deployedHal9kNFTPoolAddress =
+  "0xb0cbBadD3b28B25Fa46EF3DC1F0100C6dc387538";
 const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
 
 const hal9kNFTPoolInited = true;
