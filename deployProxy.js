@@ -108,6 +108,7 @@ const initHal9kVault = async () => {
     );
     let initTxn = await hal9kVault.initialize(
       hal9kTokenAddress,
+      deployedHal9kNFTPoolAddress,
       devAddr,
       devAddr
     );
@@ -223,8 +224,8 @@ const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
 const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0x5f4d33BA87feb296b129a04D5E571A70800E675B";
-const deployedHal9kVaultProxy = "0x95875951e653E0f37dA1d1e6E596ba4011192A78"; // No change after deploy
+const deployedHal9kVaultAddress = "0x18642D8Ba0FAAfE02913B8DA6b2D793EbF7e017b";
+const deployedHal9kVaultProxy = "0x3E7F103Eb996dA047137D7B55c8198628c3964b1"; // No change after deploy
 
 const hal9kVaultInited = true;
 
@@ -239,9 +240,8 @@ const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No 
 const routerInited = true;
 
 const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
-const deployedHal9kNFTPoolAddress =
-  "0x908d969016D96aBaE5D3c47F0fda35dD485E4Bfa";
-const deployedHal9kNFTPoolProxy = "0x2e0Ee634bBF62dF4ad1B444Faf1163320Cbf81dF";
+const deployedHal9kNFTPoolAddress = "0x68F4A16efcc5201111a298e60F7183dADd45780d";
+const deployedHal9kNFTPoolProxy = "0x1f493192909763D1B2688912Dae59E0371006151";
 
 const hal9kNFTPoolInited = true;
 

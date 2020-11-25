@@ -14,6 +14,7 @@ import "hardhat/console.sol";
 contract HAL9KNFTPool is OwnableUpgradeSafe {
 	ERC1155Tradable public hal9kLtd;
     IHal9kVault public hal9kVault;
+	uint256 private waitTimeUnit;
 
     struct UserInfo {
         uint256 lastUpdateTime;
@@ -28,16 +29,19 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	event stageUpdated(address addr, uint256 stage, uint256 lastUpdateTime);
 	event vaultAddressChanged(address newAddress, address oldAddress);
 	event didHal9kStaking(address addr, uint256 startedTime);
+	event withdrawnLP(address addr, uint256 lastUpdateTime);
 	event stakeAmountUpdated(address addr, uint256 newAmount);
+	event waitTimeUnitUpdated(address addr, uint256 waitTimeUnit);
 	event minted(address addr, uint256 cardId, uint256 mintAmount);
 	event burned(address addr, uint256 cardId, uint256 burnAmount);
 
 	// functions
-	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress,address superAdmin) public initializer {
+	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress, address superAdmin) public initializer {
     	OwnableUpgradeSafe.__Ownable_init();
 		_superAdmin = superAdmin;
 		hal9kLtd = _hal9kltdAddress;
 		hal9kVault = IHal9kVault(_hal9kVaultAddress);
+		waitTimeUnit = 1 days;
 	}
 
 	// Change the hal9k vault address
@@ -47,6 +51,15 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
 	
+	function updateWaitTimeUnit(uint256 timeUnit) public onlyOwner {
+		waitTimeUnit = timeUnit;
+		emit waitTimeUnitUpdated(msg.sender, waitTimeUnit);
+	}
+
+	function getStakedAmountOfUser(address user) public view onlyOwner returns(uint256 stakeAmount) {
+		return lpUsers[user].stakeAmount;
+	}
+
 	function isHal9kStakingStarted(address sender) public view returns(bool started){
 		if (lpUsers[sender].startTime > 0) return true;
 		return false;
@@ -63,17 +76,32 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 			lpUsers[sender].lastUpdateTime = block.timestamp;
 			lpUsers[sender].stage = 0;
 		}
-		emit didHal9kStaking(sender, block.timestamp);
+		emit didHal9kStaking(sender, lpUsers[sender].startTime);
+	}
+
+	function withdrawLP(address sender, uint256 stakeAmount) public {
+		require(hal9kVault == IHal9kVault(_msgSender()), "Caller is not Hal9kVault Contract");
+		require(stakeAmount > 0, "Stake amount invalid");
+		require(lpUsers[sender].startTime > 0, "Staking not started");
+		if (lpUsers[sender].stakeAmount > stakeAmount) {
+			lpUsers[sender].stakeAmount -= stakeAmount;
+		} else {
+			lpUsers[sender].stakeAmount = 0;
+			lpUsers[sender].lastUpdateTime = 0;
+			lpUsers[sender].startTime = 0;
+			lpUsers[sender].stage = 0;
+		}
+		emit withdrawnLP(sender, lpUsers[sender].startTime);
 	}
 
     function getDaysPassedAfterStakingStart() public view returns (uint256) {
         require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-        return (block.timestamp - lpUsers[msg.sender].startTime) / 60 / 60 / 24;
+        return (block.timestamp - lpUsers[msg.sender].startTime) / waitTimeUnit;
     }
-
+	
 	function getDaysPassedAfterLastUpdateTime() public view returns (uint256) {
 		require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-        return (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / 60 / 60 / 24;
+        return (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
 	}
 
 	function getCurrentStage() public view returns(uint256 stage) {
@@ -90,7 +118,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	// backOrForth : back if true, forward if false
 	function moveStageBackOrForth(bool backOrForth) public { 
 		require(lpUsers[msg.sender].startTime > 0 && lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / 60 / 60 / 24;
+		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
 
 		console.log("Passed days: ", passedDays);
 		if (backOrForth == false) {	// If user moves to the next stage
@@ -116,7 +144,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		console.log("Changed stage: ", lpUsers[msg.sender].stage);
 		emit stageUpdated(msg.sender, lpUsers[msg.sender].stage, lpUsers[msg.sender].lastUpdateTime);
 	}
-	
+
 	// Give NFT to User
 	function mintCardForUser(uint256 _pid, uint256 _cardId, uint256 _cardCount) public {
 		// Check if cards are available to be minted

@@ -889,6 +889,7 @@ pragma solidity ^0.6.0;
 interface IHAL9KNFTPool {
    function isHal9kStakingStarted(address sender) external view returns(bool);
    function doHal9kStaking(address sender, uint256 stakeAmount) external;
+   function withdrawLP(address sender, uint256 stakeAmount) external;
 }
 
 // File: hardhat/console.sol
@@ -2837,6 +2838,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         }
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
 
+        if (_amount > 0) _hal9kNftPool.withdrawLP(msg.sender, _amount);
         emit Withdraw(to, _pid, _amount);
     }
 
