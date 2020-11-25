@@ -46,6 +46,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         hal9kVault = IHal9kVault(_hal9kVaultAddress);
         emit vaultAddressChanged(_hal9kVaultAddress, oldAddress);
     }
+	
 	function isHal9kStakingStarted(address sender) public view returns(bool started){
 		if (lpUsers[sender].startTime > 0) return true;
 		return false;
