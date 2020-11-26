@@ -60,20 +60,24 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		return lpUsers[user].stakeAmount;
 	}
 
-	function isHal9kStakingStarted(address sender) public view returns(bool started){
-		if (lpUsers[sender].startTime > 0) return true;
+	function getStakeStartTime(address user) public view onlyOwner returns(uint256 startTime) {
+		return lpUsers[user].startTime;
+	}
+	
+	function isHal9kStakingStarted(address user) public view returns(bool started){
+		if (lpUsers[user].startTime > 0) return true;
 		return false;
 	}
 
-	function doHal9kStaking(address sender, uint256 stakeAmount) public {
+	function doHal9kStaking(address sender, uint256 stakeAmount, uint256 currentTime) public {
 		require(hal9kVault == IHal9kVault(_msgSender()), "Caller is not Hal9kVault Contract");
 		require(stakeAmount > 0, "Stake amount invalid");
 		if (lpUsers[sender].startTime > 0) {
 			lpUsers[sender].stakeAmount += stakeAmount;
 		} else {
-			lpUsers[sender].startTime = block.timestamp;
+			lpUsers[sender].startTime = currentTime;
 			lpUsers[sender].stakeAmount = stakeAmount;
-			lpUsers[sender].lastUpdateTime = block.timestamp;
+			lpUsers[sender].lastUpdateTime = currentTime;
 			lpUsers[sender].stage = 0;
 		}
 		emit didHal9kStaking(sender, lpUsers[sender].startTime);
