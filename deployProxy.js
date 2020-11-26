@@ -108,7 +108,7 @@ const initHal9kVault = async () => {
     );
     let initTxn = await hal9kVault.initialize(
       hal9kTokenAddress,
-      deployedHal9kNFTPoolAddress,
+      deployedHal9kNFTPoolProxy,
       devAddr,
       devAddr
     );
@@ -221,28 +221,26 @@ const initV1Router = async () => {
 };
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 //rinkby testnet addresses
-const hal9kTokenAddress = "0xf16447C1FD9BADEfa795Ab4EBF9b72DCBd91EF2B";
-const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
+const hal9kTokenAddress = "0x91d7f0e332fd463eC20a0Dfc4c13c56b9BA2b768";
+const deployedProxyAdminAddress = "0x3b441AbD4915C559B66f56d512B4F3d8cB6040a9"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0x18642D8Ba0FAAfE02913B8DA6b2D793EbF7e017b";
-const deployedHal9kVaultProxy = "0x3E7F103Eb996dA047137D7B55c8198628c3964b1"; // No change after deploy
+const deployedHal9kVaultAddress = "0x190999912AA356979E5d5614caCa2d949f3D2036";
+const deployedHal9kVaultProxy = "0xeBABb615a4B52114DBefE6E4830401df5f021Da2"; // No change after deploy
+
+const deployedFeeApproverAddress = "0x93B38FaFfFFa9dE7606dA37E9a81ABE805A4Fa75";
+const deployedFeeApproverProxy = "0x6Df1adE5AD19d7E07005f7578f1192FCCc13741c"; // No change after deploy
+
+const deployedRouterAddress = "0xEBB15b48233C35466ECfFc4E3A4636C61A8778d9";
+const deployedRouterProxy = "0x69D1BB385916Da08A4d922FF801948B390F484bA"; // No change after deploy
+
+const deployedHal9kLtdAddress = "0x8Cf6726e12c8B3D799a6e0558fAe4671076a13Aa";
+const deployedHal9kNFTPoolAddress =
+  "0xe1FC059B3F5970F9E7E138b1f96B40dB0B7c0901";
+const deployedHal9kNFTPoolProxy = "0xf59B03F0785C16ee706a7bfa59453E03CC1Fee72";
 
 const hal9kVaultInited = true;
-
-const deployedFeeApproverAddress = "0x40d268b5916EbA91B9CF3907b68379752e0346E3";
-const deployedFeeApproverProxy = "0xBd78FAB43462837157E066b87808F79Cee122EC3"; // No change after deploy
-
 const feeApproverInited = true;
-
-const deployedRouterAddress = "0xe1F5d02796605ced3aB500D14Cb6C2D8930e9dBB";
-const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No change after deploy
-
 const routerInited = true;
-
-const deployedHal9kLtdAddress = "0xeBB4e3EF1F7DaF0F241fc6e005562470cB8c7620";
-const deployedHal9kNFTPoolAddress = "0x68F4A16efcc5201111a298e60F7183dADd45780d";
-const deployedHal9kNFTPoolProxy = "0x1f493192909763D1B2688912Dae59E0371006151";
-
 const hal9kNFTPoolInited = true;
 
 // Step 1.
@@ -274,14 +272,6 @@ if (!deployedHal9kVaultProxy) {
 }
 
 // Step 4.
-// Call initializer on the proxied Hal9kVault
-
-if (!hal9kVaultInited) {
-  initHal9kVault();
-  return;
-}
-
-// Step 5.
 // Deploy FeeApprover
 
 if (!deployedFeeApproverAddress) {
@@ -289,7 +279,7 @@ if (!deployedFeeApproverAddress) {
   return;
 }
 
-// Step 6.
+// Step 5.
 //Deploy FeeApproverProxy
 
 if (!deployedFeeApproverProxy) {
@@ -301,21 +291,14 @@ if (!deployedFeeApproverProxy) {
   return;
 }
 
-//Step 7.
-//Initalize the feeApprover
-
-if (!feeApproverInited) {
-  initFeeApprover();
-  return;
-}
-//step 8
+//step 6
 //deploy v1 router
 if (!deployedRouterAddress) {
   deploy(hal9kv1RouterArtifact);
   return;
 }
 
-//step 9
+//step 7
 //deploy v1 router proxy
 if (!deployedRouterProxy) {
   deploy(adminUpgradeabilityProxyArtifact, [
@@ -326,13 +309,7 @@ if (!deployedRouterProxy) {
   return;
 }
 
-//step 10
-//Init v1 router
-if (!routerInited) {
-  initV1Router();
-  return;
-}
-// Step 11
+// Step 8
 // Deploy Hal9kNFTPool
 
 if (!deployedHal9kNFTPoolAddress) {
@@ -341,7 +318,7 @@ if (!deployedHal9kNFTPoolAddress) {
   return;
 }
 
-//Step 12
+//Step 9
 //Deploy hal9knft proxy
 if (!deployedHal9kNFTPoolProxy) {
   deploy(adminUpgradeabilityProxyArtifact, [
@@ -349,6 +326,28 @@ if (!deployedHal9kNFTPoolProxy) {
     deployedProxyAdminAddress /*admin*/,
     [],
   ]);
+  return;
+}
+
+// Step 10
+// Call initializer on the proxied Hal9kVault
+
+if (!hal9kVaultInited) {
+  initHal9kVault();
+  return;
+}
+
+//Step 11
+//Initalize the feeApprover
+
+if (!feeApproverInited) {
+  initFeeApprover();
+  return;
+}
+//step 12
+//Init v1 router
+if (!routerInited) {
+  initV1Router();
   return;
 }
 
