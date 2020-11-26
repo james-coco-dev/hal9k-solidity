@@ -221,7 +221,7 @@ const initV1Router = async () => {
 };
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 //rinkby testnet addresses
-const hal9kTokenAddress = "0x80aCE96aB5a40F110c9477460c77004CA16669a2";
+const hal9kTokenAddress = "0xf16447C1FD9BADEfa795Ab4EBF9b72DCBd91EF2B";
 const deployedProxyAdminAddress = "0x6ea31a0ADEc3654F81EC7F3400dadD0D56eC3A2F"; // No change after deploy
 
 const deployedHal9kVaultAddress = "0x18642D8Ba0FAAfE02913B8DA6b2D793EbF7e017b";
@@ -239,7 +239,7 @@ const deployedRouterProxy = "0xe3400365f90cf5442F997Cf7E230334025889973"; // No 
 
 const routerInited = true;
 
-const deployedHal9kLtdAddress = "0x6aFb66f0D3188e400A4bBFA589CfF01E6c9F91b3";
+const deployedHal9kLtdAddress = "0xeBB4e3EF1F7DaF0F241fc6e005562470cB8c7620";
 const deployedHal9kNFTPoolAddress = "0x68F4A16efcc5201111a298e60F7183dADd45780d";
 const deployedHal9kNFTPoolProxy = "0x1f493192909763D1B2688912Dae59E0371006151";
 
