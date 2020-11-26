@@ -255,7 +255,7 @@ const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 const hal9kTokenAddress = "0x91d7f0e332fd463eC20a0Dfc4c13c56b9BA2b768";
 const deployedProxyAdminAddress = "0x3b441AbD4915C559B66f56d512B4F3d8cB6040a9"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0x5aEd891865D7577Fc5Dfb1F46AC1DCf6862898f3";
+const deployedHal9kVaultAddress = "0xC6D1Dc87cc5be569f9697F2e3E8256dAaf2d5741";
 const deployedHal9kVaultProxy = "0xeBABb615a4B52114DBefE6E4830401df5f021Da2"; // No change after deploy
 
 const deployedFeeApproverAddress = "0x93B38FaFfFFa9dE7606dA37E9a81ABE805A4Fa75";
