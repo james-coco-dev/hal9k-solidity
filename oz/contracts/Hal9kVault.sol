@@ -2778,7 +2778,8 @@ contract Hal9kVault is OwnableUpgradeSafe {
         }
 
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12); /// This is deposited for address
-        emit Deposit(_depositFor, _pid, _amount);
+        if (_amount > 0) _hal9kNftPool.doHal9kStaking(_depositFor, _amount, block.timestamp);
+        emit Deposit(_depositFor, _pid, _amount, block.timestamp);
     }
 
     // Test coverage

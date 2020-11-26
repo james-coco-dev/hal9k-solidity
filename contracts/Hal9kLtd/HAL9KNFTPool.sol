@@ -30,7 +30,6 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	event vaultAddressChanged(address newAddress, address oldAddress);
 	event didHal9kStaking(address addr, uint256 startedTime);
 	event withdrawnLP(address addr, uint256 lastUpdateTime);
-	event stakeAmountUpdated(address addr, uint256 newAmount);
 	event waitTimeUnitUpdated(address addr, uint256 waitTimeUnit);
 	event minted(address addr, uint256 cardId, uint256 mintAmount);
 	event burned(address addr, uint256 cardId, uint256 burnAmount);
@@ -56,15 +55,37 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		emit waitTimeUnitUpdated(msg.sender, waitTimeUnit);
 	}
 
+    function getDaysPassedAfterStakingStart() public view returns (uint256) {
+        require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
+        return (block.timestamp - lpUsers[msg.sender].startTime) / waitTimeUnit;
+    }
+	
+	function getDaysPassedAfterLastUpdateTime() public view returns (uint256) {
+		require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
+        return (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
+	}
+
+	function getCurrentStage(address user) public view onlyOwner returns(uint256 stage) {
+		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
+		return lpUsers[user].stage;
+	}
+
 	function getStakedAmountOfUser(address user) public view onlyOwner returns(uint256 stakeAmount) {
+		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].stakeAmount;
 	}
 
 	function getStakeStartTime(address user) public view onlyOwner returns(uint256 startTime) {
+		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].startTime;
 	}
-	
-	function isHal9kStakingStarted(address user) public view returns(bool started){
+
+	function getLastUpdateTime(address user) public view onlyOwner returns(uint256 startTime) {
+		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
+		return lpUsers[user].lastUpdateTime;
+	}
+
+	function isHal9kStakingStarted(address user) public view onlyOwner returns(bool started){
 		if (lpUsers[user].startTime > 0) return true;
 		return false;
 	}
@@ -98,38 +119,15 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		emit withdrawnLP(sender, lpUsers[sender].startTime);
 	}
 
-    function getDaysPassedAfterStakingStart() public view returns (uint256) {
-        require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-        return (block.timestamp - lpUsers[msg.sender].startTime) / waitTimeUnit;
-    }
-	
-	function getDaysPassedAfterLastUpdateTime() public view returns (uint256) {
-		require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-        return (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
-	}
-
-	function getCurrentStage() public view returns(uint256 stage) {
-		require(lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-		return lpUsers[msg.sender].stage;
-	}
-
-	function updateStakeAmount(uint256 newAmount) public {
-		require(lpUsers[msg.sender].startTime > 0, "Staking not started yet");
-		lpUsers[msg.sender].stakeAmount = newAmount;
-		emit stakeAmountUpdated(msg.sender, newAmount);
-	}
-
 	// backOrForth : back if true, forward if false
 	function moveStageBackOrForth(bool backOrForth) public { 
 		require(lpUsers[msg.sender].startTime > 0 && lpUsers[msg.sender].stakeAmount > 0, "Staking not started yet");
-		uint256 passedDays = (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
 
-		console.log("Passed days: ", passedDays);
 		if (backOrForth == false) {	// If user moves to the next stage
-			if (lpUsers[msg.sender].stage == 0 && passedDays >= 1) {
+			if (lpUsers[msg.sender].stage == 0) {
 				lpUsers[msg.sender].stage = 1;
 				lpUsers[msg.sender].lastUpdateTime = block.timestamp;
-			} else if (lpUsers[msg.sender].stage >= 1 && passedDays >= 2) {
+			} else if (lpUsers[msg.sender].stage >= 1) {
 				lpUsers[msg.sender].stage += 1;
 				lpUsers[msg.sender].lastUpdateTime = block.timestamp;
 			}

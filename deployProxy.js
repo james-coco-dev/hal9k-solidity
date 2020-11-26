@@ -266,7 +266,7 @@ const deployedRouterProxy = "0x69D1BB385916Da08A4d922FF801948B390F484bA"; // No 
 
 const deployedHal9kLtdAddress = "0x8Cf6726e12c8B3D799a6e0558fAe4671076a13Aa";
 const deployedHal9kNFTPoolAddress =
-  "0xB02B216012105a6440dA81fdEA76D78693c762b1";
+  "0xA0F5D5b055b028c2edAbCedC7a3dED0EBBe0994d";
 const deployedHal9kNFTPoolProxy = "0xf59B03F0785C16ee706a7bfa59453E03CC1Fee72";
 
 const hal9kVaultInited = true;

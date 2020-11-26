@@ -10,5 +10,5 @@ npx hardhat verify --network rinkeby 0x40d268b5916EbA91B9CF3907b68379752e0346E3
 echo "⌛ Verifying Hal9kv1Router"
 npx hardhat verify --network rinkeby 0xe1F5d02796605ced3aB500D14Cb6C2D8930e9dBB
 echo "⌛ Verifying Hal9kNftPool"
-npx hardhat verify --network rinkeby 0x68F4A16efcc5201111a298e60F7183dADd45780d
+npx hardhat verify --network rinkeby 0xA0F5D5b055b028c2edAbCedC7a3dED0EBBe0994d
 echo "✅ Verification Done!"
