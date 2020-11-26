@@ -888,7 +888,7 @@ pragma solidity ^0.6.0;
 
 interface IHAL9KNFTPool {
    function isHal9kStakingStarted(address sender) external view returns(bool);
-   function doHal9kStaking(address sender, uint256 stakeAmount) external;
+   function doHal9kStaking(address sender, uint256 stakeAmount, uint256 currentTime) external;
    function withdrawLP(address sender, uint256 stakeAmount) external;
 }
 
@@ -2554,7 +2554,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         ++epoch;
     }
 
-    event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, uint256 startTime);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(
         address indexed user,
@@ -2745,8 +2745,8 @@ contract Hal9kVault is OwnableUpgradeSafe {
             user.amount = user.amount.add(_amount);
         }
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
-        if (_amount > 0) _hal9kNftPool.doHal9kStaking(msg.sender, _amount);
-        emit Deposit(msg.sender, _pid, _amount);
+        if (_amount > 0) _hal9kNftPool.doHal9kStaking(msg.sender, _amount, block.timestamp);
+        emit Deposit(msg.sender, _pid, _amount, block.timestamp);
     }
 
     // Test coverage
