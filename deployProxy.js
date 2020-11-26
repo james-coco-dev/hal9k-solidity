@@ -11,6 +11,8 @@ const adminUpgradeabilityProxyArtifact =
 const feeApproverArtifact = "./prodartifacts/FeeApprover.json";
 const hal9kv1RouterArtifact = "./prodartifacts/Hal9kv1Router.json";
 const hal9kNFTPoolArtifact = "./prodartifacts/HAL9KNFTPool.json";
+const UniswapV2Factory = "./prodartifacts/IUniswapV2Factory.json";
+
 const unpackArtifact = (artifactPath) => {
   let contractData = JSON.parse(fs.readFileSync(artifactPath));
   const contractBytecode = contractData["bytecode"];
@@ -219,12 +221,41 @@ const initV1Router = async () => {
     console.log("initHal9kV1Router ====>", error);
   }
 };
+
+const addHal9kETHPool = async () => {
+  try {
+    let tokenUnpacked = unpackArtifact(hal9kVaultArtifact);
+    let hal9kVault = new Contract(
+      deployedHal9kVaultProxy,
+      tokenUnpacked.abi,
+      connectedWallet
+    );
+    //get uniswap pair
+    let uniswapFactoryUnpacked = unpackArtifact(UniswapV2Factory);
+    let uniswapFactory = new Contract(
+      process.env.UNISWAPFACTORY,
+      uniswapFactoryUnpacked.abi,
+      connectedWallet
+    );
+    const pairAddress = await uniswapFactory.getPair(
+      wethAddress,
+      hal9kTokenAddress
+    );
+    console.log("Uniswap Pair =====> ", pairAddress);
+    let initTxn = await hal9kVault.add(100, pairAddress, true, true);
+    console.log(`⌛ Adding Hal9k/Weth pool to Hal9kVault...`);
+    await connectedWallet.provider.waitForTransaction(initTxn.hash);
+    console.log(`✅ Added Hal9k/Weth pool to ${hal9kVault.address}`);
+  } catch (error) {
+    console.log("adding pool ====>", error);
+  }
+};
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 //rinkby testnet addresses
 const hal9kTokenAddress = "0x91d7f0e332fd463eC20a0Dfc4c13c56b9BA2b768";
 const deployedProxyAdminAddress = "0x3b441AbD4915C559B66f56d512B4F3d8cB6040a9"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0x190999912AA356979E5d5614caCa2d949f3D2036";
+const deployedHal9kVaultAddress = "0x5aEd891865D7577Fc5Dfb1F46AC1DCf6862898f3";
 const deployedHal9kVaultProxy = "0xeBABb615a4B52114DBefE6E4830401df5f021Da2"; // No change after deploy
 
 const deployedFeeApproverAddress = "0x93B38FaFfFFa9dE7606dA37E9a81ABE805A4Fa75";
@@ -235,13 +266,14 @@ const deployedRouterProxy = "0x69D1BB385916Da08A4d922FF801948B390F484bA"; // No 
 
 const deployedHal9kLtdAddress = "0x8Cf6726e12c8B3D799a6e0558fAe4671076a13Aa";
 const deployedHal9kNFTPoolAddress =
-  "0xe1FC059B3F5970F9E7E138b1f96B40dB0B7c0901";
+  "0xB02B216012105a6440dA81fdEA76D78693c762b1";
 const deployedHal9kNFTPoolProxy = "0xf59B03F0785C16ee706a7bfa59453E03CC1Fee72";
 
 const hal9kVaultInited = true;
 const feeApproverInited = true;
 const routerInited = true;
 const hal9kNFTPoolInited = true;
+const hal9kVaultPoolInited = true;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
@@ -355,4 +387,11 @@ if (!routerInited) {
 //Initialize the hal9knftpool
 if (!hal9kNFTPoolInited) {
   initHal9kNftPool();
+  return;
+}
+
+//add the pool to the hal9kvault
+
+if (!hal9kVaultPoolInited) {
+  addHal9kETHPool();
 }
