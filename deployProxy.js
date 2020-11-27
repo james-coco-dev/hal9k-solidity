@@ -269,11 +269,11 @@ const deployedHal9kNFTPoolAddress =
   "0xA0F5D5b055b028c2edAbCedC7a3dED0EBBe0994d";
 const deployedHal9kNFTPoolProxy = "0xf59B03F0785C16ee706a7bfa59453E03CC1Fee72";
 
-const hal9kVaultInited = true;
+const hal9kVaultInited = false;
 const feeApproverInited = true;
-const routerInited = true;
+const routerInited = false;
 const hal9kNFTPoolInited = true;
-const hal9kVaultPoolInited = true;
+const hal9kVaultPoolAdded = true;
 
 // Step 1.
 // Deploy proxy admin contract and get the address..
@@ -392,6 +392,6 @@ if (!hal9kNFTPoolInited) {
 
 //add the pool to the hal9kvault
 
-if (!hal9kVaultPoolInited) {
+if (!hal9kVaultPoolAdded) {
   addHal9kETHPool();
 }
