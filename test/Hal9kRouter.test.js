@@ -58,9 +58,9 @@ contract("Hal9kV1Router", () => {
     await this.hal9k.startLiquidityGenerationEventForHAL9K();
     await this.hal9k.addLiquidity(true, {
       from: minter,
-      value: "1000000000000000000",
+      value: "7000000000000000000",
     });
-    await time.increase(60 * 60 * 24 * 7 + 1);
+    await time.increase(60 * 10);
     await this.hal9k.addLiquidityToUniswapHAL9KxWETHPair();
     await this.hal9k.claimLPTokens({ from: minter });
 
@@ -68,7 +68,12 @@ contract("Hal9kV1Router", () => {
       (await this.weth.balanceOf(this.hal9kWETHPair.address))
         .valueOf()
         .toString(),
-      "1000000000000000000"
+      "7000000000000000000"
+    );
+
+    console.log(
+      "hal9k hal9k amount=====>",
+      (await this.hal9k.balanceOf(this.hal9k.address)).valueOf().toString()
     );
     assert.equal(
       (await this.hal9k.balanceOf(this.hal9kWETHPair.address))
@@ -77,9 +82,8 @@ contract("Hal9kV1Router", () => {
       9000e18
     );
 
-    await this.hal9kWETHPair.sync();
+    //await this.hal9kWETHPair.sync();
 
-    console.log(this.hal9k.address);
     this.feeapprover = await FeeApprover.new({ from: alice });
     await this.feeapprover.initialize(
       this.hal9k.address,
@@ -92,14 +96,12 @@ contract("Hal9kV1Router", () => {
       from: alice,
     });
 
-    await this.router.swapExactETHForTokensSupportingFeeOnTransferTokens(
-      "1",
-      [await this.router.WETH(), this.hal9k.address],
-      minter,
-      15999743005,
-      { from: minter, value: "5000000000000000000000" }
+    console.log(
+      "pair hal9k amount======>",
+      (await this.hal9k.balanceOf(this.hal9kWETHPair.address))
+        .valueOf()
+        .toString()
     );
-
     console.log(
       "Balance of minter is ",
       (await this.hal9k.balanceOf(minter)).valueOf().toString()
@@ -120,8 +122,6 @@ contract("Hal9kV1Router", () => {
       }
     );
     this.hal9kNftPool = await Hal9kNftPool.new({ from: alice });
-    console.log("hal9k========>", this.hal9k.address);
-    console.log("hal9knftpool==========>", this.hal9kNftPool.address);
     await this.hal9kvault.initialize(
       this.hal9k.address,
       this.hal9kNftPool.address,
@@ -136,7 +136,7 @@ contract("Hal9kV1Router", () => {
     await this.hal9kvault.add(100, this.hal9kWETHPair.address, true, true, {
       from: alice,
     });
-    await this.weth.transfer(minter, "10000000000000000000", { from: alice });
+    //await this.weth.transfer(minter, "10000000000000000000", { from: alice });
 
     await this.feeapprover.setHal9kVaultAddress(this.hal9kvault.address, {
       from: alice,
@@ -152,13 +152,9 @@ contract("Hal9kV1Router", () => {
     // Set pair in the uni reert contract
   });
   it("addLiqudityEthOnly should work correctly", async () => {
-    console.log((await this.hal9k.totalETHContributed()).valueOf().toString());
-    console.log(
-      (await this.hal9kWETHPair.balanceOf(clean2)).valueOf().toString()
-    );
     await this.hal9kRouter.addLiquidityETHOnly(clean2, false, {
       from: clean2,
-      value: "10000000000000",
+      value: "100000000000000000",
     });
     console.log(
       (await this.hal9kWETHPair.balanceOf(clean2)).valueOf().toString()

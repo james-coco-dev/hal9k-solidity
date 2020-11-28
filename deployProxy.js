@@ -126,7 +126,7 @@ const initFeeApprover = async () => {
   try {
     let tokenUnpacked = unpackArtifact(feeApproverArtifact);
     let feeApprover = new Contract(
-      deployedFeeApproverAddress,
+      deployedFeeApproverProxy,
       tokenUnpacked.abi,
       connectedWallet
     );
@@ -165,7 +165,9 @@ const initFeeApprover = async () => {
       `✅ Called setShouldTransferChecker(${feeApprover.address} on token at ${token.address})`
     );
 
-    let setFeeDistributorResult = await token.setFeeDistributor(devAddr);
+    let setFeeDistributorResult = await token.setFeeDistributor(
+      deployedHal9kVaultProxy
+    );
     console.log(`⌛ setFeeDistributor...`);
     await connectedWallet.provider.waitForTransaction(
       setFeeDistributorResult.hash
@@ -225,7 +227,7 @@ const initV1Router = async () => {
       hal9kTokenAddress,
       wethAddress,
       process.env.UNISWAPFACTORY,
-      deployedFeeApproverAddress,
+      deployedFeeApproverProxy,
       deployedHal9kVaultProxy
     );
     console.log(`⌛ Initialize Hal9kV1Router...`);
@@ -268,22 +270,23 @@ const addHal9kETHPool = async () => {
 };
 const devAddr = "0x5518876726C060b2D3fCda75c0B9f31F13b78D07";
 //rinkby testnet addresses
-const hal9kTokenAddress = "0x45961efFA758912036a5800C85182C00E93A609C";
-const deployedProxyAdminAddress = "0x6D9C2681dd1b3509E0Db4394250e310B9fBFfEB4"; // No change after deploy
+const hal9kTokenAddress = "0x53dEf6252a3b5e3f5aea8009B6Da528DA02D7a65";
+const pairAddress = "0x3C7218C374DFB29b07a9255736DC95919f2b74cb";
+const deployedProxyAdminAddress = "0xEc839d2331D9c1F829e80b8e04805d0B1db457d9"; // No change after deploy
 
-const deployedHal9kVaultAddress = "0xad7394775E8029E186F42aD0d365833514734648";
-const deployedHal9kVaultProxy = "0xca26fa5af9E134D1a9317F67F6f30ad5b802b919"; // No change after deploy
+const deployedHal9kVaultAddress = "0x7E3DCb513DAdF5c304d443af3F9103E6261Bb74C";
+const deployedHal9kVaultProxy = "0x50a22b99Ad350cD7A6C2FfC643D78fdD4F97e468"; // No change after deploy
 
-const deployedFeeApproverAddress = "0x2884DaC5B2cA24f6e2619D7Ec56465aA09955f04";
-//const deployedFeeApproverProxy = "0x43bc998E8553654774d974F6bbc5F738CeFeA255"; // No change after deploy
+const deployedFeeApproverAddress = "0x2AA789429adFf434Fdd9968B88c63995293089Ab";
+const deployedFeeApproverProxy = "0xa864eC357139eB186A2E106ea5068453451668C9"; // No change after deploy
 
-const deployedRouterAddress = "";
+const deployedRouterAddress = "0x880307AD33CB38895c1AB242dF76fDd6Ce1435BA";
 //const deployedRouterProxy = "0x197Bf37340Cf2b91F17159b7453B770fA8D891F2"; // No change after deploy
 
-const deployedHal9kLtdAddress = "0xd4150399C55bf0405FBF3E47407cab6C9eA04B29";
+const deployedHal9kLtdAddress = "0xA1A94F6348E18C9c70b41B7803c1a0fAceCEdDBf";
 const deployedHal9kNFTPoolAddress =
-  "0x0F7453877CFc5b0B2d5E39a2923331F111A2b759";
-const deployedHal9kNFTPoolProxy = "0xCbfB5DE22ec5376bd46d3C090B26BF5177372c6A";
+  "0xc76Ded5D36baB99eB79a17d6d884F8f4364487a0";
+const deployedHal9kNFTPoolProxy = "0xe7FBdc4B11405431e480F165734D53258EF52C48";
 
 const hal9kVaultInited = true;
 const feeApproverInited = true;
@@ -330,14 +333,14 @@ if (!deployedFeeApproverAddress) {
 // Step 5.
 //Deploy FeeApproverProxy
 
-// if (!deployedFeeApproverProxy) {
-//   deploy(adminUpgradeabilityProxyArtifact, [
-//     deployedFeeApproverAddress /*logic*/,
-//     deployedProxyAdminAddress /*admin*/,
-//     [],
-//   ]);
-//   return;
-// }
+if (!deployedFeeApproverProxy) {
+  deploy(adminUpgradeabilityProxyArtifact, [
+    deployedFeeApproverAddress /*logic*/,
+    deployedProxyAdminAddress /*admin*/,
+    [],
+  ]);
+  return;
+}
 
 //step 6
 //deploy v1 router
