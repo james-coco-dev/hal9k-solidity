@@ -175,26 +175,26 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         require(liquidityGenerationOngoing(), "Event over");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(10 minutes),
+            contractStartTimestamp.add(2 minutes),
             "Time now is",
             block.timestamp
         );
-        return contractStartTimestamp.add(10 minutes).sub(block.timestamp);
+        return contractStartTimestamp.add(2 minutes).sub(block.timestamp);
     }
 
     function liquidityGenerationOngoing() public view returns (bool) {
         require(contractStartTimestamp > 0, "LGE not started");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(10 minutes),
+            contractStartTimestamp.add(2 minutes),
             "Time now is",
             block.timestamp
         );
         console.log(
             "liquidity generation ongoing",
-            contractStartTimestamp.add(10 minutes) < block.timestamp
+            contractStartTimestamp.add(2 minutes) < block.timestamp
         );
-        return contractStartTimestamp.add(10 minutes) > block.timestamp;
+        return contractStartTimestamp.add(2 minutes) > block.timestamp;
     }
 
     // Emergency drain in case of a bug
@@ -247,6 +247,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         _balances[address(pair)] = _balances[address(this)];
         _balances[address(this)] = 0;
         pair.mint(address(this));
+        emit Transfer(address(this), address(pair), _balances[address(pair)]);
         totalLPTokensMinted = pair.balanceOf(address(this));
         console.log("Total tokens minted", totalLPTokensMinted);
         require(totalLPTokensMinted != 0, "LP creation failed");
