@@ -33,6 +33,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	event waitTimeUnitUpdated(address addr, uint256 waitTimeUnit);
 	event minted(address addr, uint256 cardId, uint256 mintAmount);
 	event burned(address addr, uint256 cardId, uint256 burnAmount);
+	event upgraded(address addr, uint256 newCardId);
 
 	// functions
 	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress, address superAdmin) public initializer {
@@ -152,7 +153,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		// Check if cards are available to be minted
 		require(_cardCount > 0, "Mint amount should be more than 1");
 		require(hal9kLtd._exists(_cardId) != false, "Card not found");
-		require(hal9kLtd.totalSupply(_cardId) <= hal9kLtd.maxSupply(_cardId), "Max cards minted");
+		require(hal9kLtd.totalSupply(_cardId) <= hal9kLtd.maxSupply(_cardId), "Card limit is reached");
 		
 		// Validation
 		uint256 stakeAmount = hal9kVault.getUserInfo(_pid, msg.sender);
@@ -175,6 +176,24 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 
 		hal9kLtd.burn(msg.sender, _cardId, _cardCount);
 		emit burned(msg.sender, _cardId, _cardCount);
+	}
+
+	function upgradeCard(uint256 _pid, uint256 _fromCardId, uint256 _fromCardCount, uint256 _toCardId, uint256 _upgradeCardId) public {
+		require(_fromCardCount > 0, "Original card should be more than 1");
+		require(hal9kLtd._exists(_fromCardId) == true, "From card doesn't exist");
+		require(hal9kLtd._exists(_toCardId) == true, "To card doesn't exist");
+		require(hal9kLtd._exists(_upgradeCardId) == true, "Upgrade card doesn't exist");
+		require(hal9kLtd.totalSupply(_fromCardId) > 0, "No cards exist");
+		require(hal9kLtd.totalSupply(_toCardId) <= hal9kLtd.maxSupply(_toCardId), "Unable to upgrade because card limit is reached.");
+
+		uint256 stakeAmount = hal9kVault.getUserInfo(_pid, msg.sender);
+		require(stakeAmount > 0 && stakeAmount == lpUsers[msg.sender].stakeAmount, "Invalid user");
+
+		hal9kLtd.burn(msg.sender, _fromCardId, _fromCardCount);
+		hal9kLtd.burn(msg.sender, _upgradeCardId, 1);
+		hal9kLtd.mint(msg.sender, _toCardId, 1);
+
+		emit upgraded(msg.sender, _toCardId);
 	}
 
     address private _superAdmin;
