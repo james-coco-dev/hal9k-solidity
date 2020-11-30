@@ -191,7 +191,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 
 		hal9kLtd.burn(msg.sender, _fromCardId, _fromCardCount);
 		hal9kLtd.burn(msg.sender, _upgradeCardId, 1);
-		hal9kLtd.mint(msg.sender, _toCardId, 1);
+		hal9kLtd.mint(msg.sender, _toCardId, 1, "");
 
 		emit upgraded(msg.sender, _toCardId);
 	}
