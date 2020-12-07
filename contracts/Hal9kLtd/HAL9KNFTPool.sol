@@ -66,27 +66,27 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
         return (block.timestamp - lpUsers[msg.sender].lastUpdateTime) / waitTimeUnit;
 	}
 
-	function getCurrentStage(address user) public view onlyOwner returns(uint256 stage) {
+	function getCurrentStage(address user) public view returns(uint256 stage) {
 		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].stage;
 	}
 
-	function getStakedAmountOfUser(address user) public view onlyOwner returns(uint256 stakeAmount) {
+	function getStakedAmountOfUser(address user) public view returns(uint256 stakeAmount) {
 		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].stakeAmount;
 	}
 
-	function getStakeStartTime(address user) public view onlyOwner returns(uint256 startTime) {
+	function getStakeStartTime(address user) public view returns(uint256 startTime) {
 		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].startTime;
 	}
 
-	function getLastUpdateTime(address user) public view onlyOwner returns(uint256 startTime) {
+	function getLastUpdateTime(address user) public view returns(uint256 startTime) {
 		require(lpUsers[user].stakeAmount > 0, "Staking not started yet");
 		return lpUsers[user].lastUpdateTime;
 	}
 
-	function isHal9kStakingStarted(address user) public view onlyOwner returns(bool started){
+	function isHal9kStakingStarted(address user) public view returns(bool started){
 		if (lpUsers[user].startTime > 0) return true;
 		return false;
 	}
