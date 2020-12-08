@@ -34,6 +34,17 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	event minted(address addr, uint256 cardId, uint256 mintAmount);
 	event burned(address addr, uint256 cardId, uint256 burnAmount);
 	event upgraded(address addr, uint256 newCardId);
+	event eventSet(uint256 cardId, uint256 starTime, uint256 endTime);
+
+	mapping(uint256 => mapping(address => bool)) public _cardSold;
+
+	struct SellEvent {
+		uint256 sellStartTime;
+		uint256 sellEndTime;
+		uint256 cardAmount;
+		uint256 soldAmount;
+	}
+	mapping(uint256 => SellEvent) public _eventData;
 
 	// functions
 	function initialize(ERC1155Tradable _hal9kltdAddress, IHal9kVault _hal9kVaultAddress, address superAdmin) public initializer {
@@ -162,6 +173,36 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		require(stakeAmount > 0 && stakeAmount == lpUsers[msg.sender].stakeAmount, "Invalid user");
 
 		hal9kLtd.mint(msg.sender, _cardId, _cardCount, "");
+		emit minted(msg.sender, _cardId, _cardCount);
+	}
+
+	function setSellEvent(uint256 _cardId, uint256 _startTime, uint256 _endTime, uint256 limitAmount) public onlyOwner{
+		require(_cardId >= 0, "Invalid card id");
+		require(_startTime >= 0, "Invalid startTime");
+		require(_endTime >= 0, "Invalid endTime");
+		require(_startTime <= _endTime, "End time must be bigger than startTime");
+		_eventData[_cardId].sellStartTime = _startTime;
+		_eventData[_cardId].sellEndTime = _endTime;
+		_eventData[_cardId].cardAmount = limitAmount;
+		_eventData[_cardId].soldAmount = 0;
+		emit eventSet(_cardId, _startTime, _endTime);
+	}
+
+	function mintCardForUserDuringSellEvent(uint256 _cardId, uint256 _cardCount) public {
+		require(_eventData[_cardId].sellStartTime >= 0 && _eventData[_cardId].sellEndTime >= 0, "Sell event is not set");
+		require(_eventData[_cardId].sellEndTime >= _eventData[_cardId].sellStartTime, "Is the sell event set correctly?");
+		require(_eventData[_cardId].soldAmount <= _eventData[_cardId].cardAmount, "All cards are sold");
+		require(block.timestamp >= _eventData[_cardId].sellStartTime, "Sell event is not started");
+		require(block.timestamp <= _eventData[_cardId].sellEndTime, "Sell event is ended");
+		require(_cardSold[_cardId][msg.sender] != true, "You've already bought the card");
+
+		require(_cardCount > 0, "Mint amount should be more than 1");
+		require(hal9kLtd._exists(_cardId) != false, "Card not found");
+		require(hal9kLtd.totalSupply(_cardId) <= hal9kLtd.maxSupply(_cardId), "Card limit is reached");
+		
+		hal9kLtd.mint(msg.sender, _cardId, _cardCount, "");
+		_cardSold[_cardId][msg.sender] = true;
+		_eventData[_cardId].soldAmount = _eventData[_cardId].soldAmount + 1;
 		emit minted(msg.sender, _cardId, _cardCount);
 	}
 
