@@ -208,7 +208,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
             contractStartTimestamp.add(8 days) < block.timestamp,
             "Liquidity generation grace period still ongoing"
         ); // About 24h after liquidity generation happens
-        (bool success, ) = msg.sender.call.value(address(this).balance)("");
+        (bool success, ) = msg.sender.call{ value: address(this).balance }(""); 
         require(success, "Transfer failed.");
         _balances[msg.sender] = _balances[address(this)];
         _balances[address(this)] = 0;
@@ -247,6 +247,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         _balances[address(pair)] = _balances[address(this)];
         _balances[address(this)] = 0;
         pair.mint(address(this));
+        emit Transfer(address(this), address(pair), _balances[address(pair)]);
         totalLPTokensMinted = pair.balanceOf(address(this));
         console.log("Total tokens minted", totalLPTokensMinted);
         require(totalLPTokensMinted != 0, "LP creation failed");

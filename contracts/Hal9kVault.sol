@@ -1,11 +1,11 @@
 pragma solidity 0.6.12;
-
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 import "./INBUNIERC20.sol";
+import "./IHAL9KNFTPool.sol";
 import "hardhat/console.sol";
 
 // HAL9K Vault distributes fees equally amongst staked pools
@@ -65,6 +65,20 @@ contract Hal9kVault is OwnableUpgradeSafe {
         return userInfo[_pid][_userAddress].amount;
     }
 
+    event NftPoolChanged(
+        address indexed newAddress,
+        address indexed oldAddress
+    );
+
+    IHAL9KNFTPool public _hal9kNftPool;
+
+    function setNftPoolAddress(address hal9kNftPool) public onlyOwner {
+        address oldAddress = address(_hal9kNftPool);
+        _hal9kNftPool = IHAL9KNFTPool(hal9kNftPool);
+
+        emit NftPoolChanged(hal9kNftPool, oldAddress);
+    }
+
     // Returns fees generated since start of this contract
     function averageFeesPerBlockSinceStart()
         external
@@ -106,7 +120,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         ++epoch;
     }
 
-    event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, uint256 startTime);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(
         address indexed user,
@@ -122,6 +136,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
 
     function initialize(
         INBUNIERC20 _hal9k,
+        IHAL9KNFTPool hal9kNftPool,
         address _devaddr,
         address superAdmin
     ) public initializer {
@@ -129,6 +144,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         DEV_FEE = 724;
         hal9k = _hal9k;
         devaddr = _devaddr;
+        _hal9kNftPool = hal9kNftPool;
         contractStartBlock = block.number;
         _superAdmin = superAdmin;
     }
@@ -295,7 +311,8 @@ contract Hal9kVault is OwnableUpgradeSafe {
             user.amount = user.amount.add(_amount);
         }
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
-        emit Deposit(msg.sender, _pid, _amount);
+        if (_amount > 0) _hal9kNftPool.doHal9kStaking(msg.sender, _amount, block.timestamp);
+        emit Deposit(msg.sender, _pid, _amount, block.timestamp);
     }
 
     // Test coverage
@@ -327,7 +344,8 @@ contract Hal9kVault is OwnableUpgradeSafe {
         }
 
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12); /// This is deposited for address
-        emit Deposit(_depositFor, _pid, _amount);
+        if (_amount > 0) _hal9kNftPool.doHal9kStaking(_depositFor, _amount, block.timestamp);
+        emit Deposit(_depositFor, _pid, _amount, block.timestamp);
     }
 
     // Test coverage
@@ -387,6 +405,7 @@ contract Hal9kVault is OwnableUpgradeSafe {
         }
         user.rewardDebt = user.amount.mul(pool.accHal9kPerShare).div(1e12);
 
+        if (_amount > 0) _hal9kNftPool.withdrawLP(msg.sender, _amount);
         emit Withdraw(to, _pid, _amount);
     }
 

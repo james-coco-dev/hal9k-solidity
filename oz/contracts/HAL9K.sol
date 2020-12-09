@@ -2556,26 +2556,26 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         require(liquidityGenerationOngoing(), "Event over");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(7 days),
+            contractStartTimestamp.add(2 minutes),
             "Time now is",
             block.timestamp
         );
-        return contractStartTimestamp.add(7 days).sub(block.timestamp);
+        return contractStartTimestamp.add(2 minutes).sub(block.timestamp);
     }
 
     function liquidityGenerationOngoing() public view returns (bool) {
         require(contractStartTimestamp > 0, "LGE not started");
         console.log(
             "7 days since start is",
-            contractStartTimestamp.add(7 days),
+            contractStartTimestamp.add(2 minutes),
             "Time now is",
             block.timestamp
         );
         console.log(
             "liquidity generation ongoing",
-            contractStartTimestamp.add(7 days) < block.timestamp
+            contractStartTimestamp.add(2 minutes) < block.timestamp
         );
-        return contractStartTimestamp.add(7 days) > block.timestamp;
+        return contractStartTimestamp.add(2 minutes) > block.timestamp;
     }
 
     // Emergency drain in case of a bug
@@ -2589,7 +2589,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
             contractStartTimestamp.add(8 days) < block.timestamp,
             "Liquidity generation grace period still ongoing"
         ); // About 24h after liquidity generation happens
-        (bool success, ) = msg.sender.call.value(address(this).balance)("");
+        (bool success, ) = msg.sender.call{ value: address(this).balance }(""); 
         require(success, "Transfer failed.");
         _balances[msg.sender] = _balances[address(this)];
         _balances[address(this)] = 0;
@@ -2628,6 +2628,7 @@ contract NBUNIERC20 is Context, INBUNIERC20, Ownable {
         _balances[address(pair)] = _balances[address(this)];
         _balances[address(this)] = 0;
         pair.mint(address(this));
+        emit Transfer(address(this), address(pair), _balances[address(pair)]);
         totalLPTokensMinted = pair.balanceOf(address(this));
         console.log("Total tokens minted", totalLPTokensMinted);
         require(totalLPTokensMinted != 0, "LP creation failed");

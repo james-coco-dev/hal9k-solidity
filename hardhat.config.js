@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -30,28 +31,33 @@ module.exports = {
         evmVersion: "byzantium",
       },
     },
+    mainnet: {
+      url: "https://mainnet.infura.io/v3/" + process.env.INFURA_APIKEY,
+      live: true,
+      saveDeployments: true,
+    },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_APIKEY,
       live: true,
       saveDeployments: true,
-    }
+    },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_APIKEY
+    apiKey: process.env.ETHERSCAN_APIKEY,
   },
-  solidity:  {
+  solidity: {
     version: "0.6.12",
     settings: {
       optimizer: {
         enabled: false,
-        runs: 200
-      }
-    }
+        runs: 200,
+      },
+    },
   },
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "./artifacts"
-  }
+    artifacts: "./artifacts",
+  },
 };
