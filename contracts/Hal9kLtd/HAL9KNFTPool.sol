@@ -16,7 +16,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 	ERC1155Tradable public hal9kLtd;
     IHal9kVault public hal9kVault;
 	uint256 private waitTimeUnit;
-	address[] private boughtAddress;
+	mapping(uint256 => address[]) private boughtAddress;
     struct UserInfo {
         uint256 lastUpdateTime;
         uint256 stakeAmount;
@@ -182,10 +182,15 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		return _cardBought[_cardId][buyer] == true ? true : false;
 	}
 
+	function isSellEventEnded(uint256 _cardId) public view returns(bool) {
+		return _eventData[_cardId].sellStartTime > 0 && _eventData[_cardId].sellEndTime > 0 && _eventData[_cardId].sellEndTime < block.timestamp ? true : false;
+	}
+
 	function getSellEventData(uint256 _cardId) public view returns(SellEvent memory) {
 		require(_cardId >= 0, "Invalid card id");
 		return _eventData[_cardId];
 	}
+
 	function setSellEvent(uint256 _cardId, uint256 _startTime, uint256 _endTime, uint256 _amount, uint256 _price) public onlyOwner{
 		require(_cardId >= 0, "Invalid card id");
 		require(_startTime >= 0, "Invalid startTime");
@@ -197,10 +202,10 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		_eventData[_cardId].cardAmount = _amount;
 		_eventData[_cardId].soldAmount = 0;
 		_eventData[_cardId].price = _price;
-		for (uint256 i = 0; i < boughtAddress.length; i ++) {
-			_cardBought[_cardId][boughtAddress[i]] = false;
+		for (uint256 i = 0; i < boughtAddress[_cardId].length; i ++) {
+			_cardBought[_cardId][boughtAddress[_cardId][i]] = false;
 		}
-		delete boughtAddress;
+		delete boughtAddress[_cardId];
 		emit eventSet(_cardId, _startTime, _endTime);
 	}
 
@@ -223,7 +228,7 @@ contract HAL9KNFTPool is OwnableUpgradeSafe {
 		hal9kLtd.mint(msg.sender, _cardId, _cardCount, "");
 
 		_cardBought[_cardId][msg.sender] = true;
-		boughtAddress.push(msg.sender);
+		boughtAddress[_cardId].push(msg.sender);
 		_eventData[_cardId].soldAmount = _eventData[_cardId].soldAmount + 1;
 		emit minted(msg.sender, _cardId, _cardCount);
 	}
